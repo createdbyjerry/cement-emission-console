@@ -29,10 +29,13 @@
     <a href="#color">Color</a>
     <a href="#type">Typography</a>
     <a href="#shape">Shape and frames</a>
+    <a href="#elevation">Elevation and layout</a>
     <a href="#scene">3D and motion</a>
     <a href="#tokens">All tokens</a>
     <h2>Components</h2>
+    <a href="#floating">Floating container</a>
     <a href="#app-bar">App bar</a>
+    <a href="#side-panel">Side panel</a>
     <a href="#buttons">Buttons</a>
     <a href="#pills">Status pills</a>
     <a href="#line-card">Production line card</a>
@@ -64,6 +67,7 @@
         <div class="box frame"><h3>One accent, one alarm</h3><p class="ds-usage">Yellow marks what's active, live or selected. Red is reserved for permit breaches and actions that stop production. Nothing else competes for attention.</p></div>
         <div class="box frame"><h3>A drawing, not a render</h3><p class="ds-usage">The plant is drawn as flat outlines with an orthographic camera, so it reads like a schematic from any angle and the data stays the focus.</p></div>
         <div class="box frame"><h3>Humans decide</h3><p class="ds-usage">Automation (capture vents) and the copilot act or recommend, but only an operator can shut a line down, and always through a confirmation step.</p></div>
+        <div class="box frame"><h3>The plant is the canvas</h3><p class="ds-usage">The 3D view fills the screen. Controls float above it in shadowed containers, and the camera keeps the plant centred in whatever space they leave open.</p></div>
         <div class="box frame"><h3>Numbers you can cite</h3><p class="ds-usage">Figures use the display face with tabular numerals. Every report value traces back to a logged record, and the copilot fetches data before it answers.</p></div>
       </div>
     </section>
@@ -98,6 +102,17 @@
       <table class="ds-table" id="shapeTokens"><thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead><tbody></tbody></table>
     </section>
 
+    <section class="ds-section" id="elevation">
+      <h2>Elevation and layout</h2>
+      <p>One elevation level for containers that float over the 3D view (app bar, side panel, line-card dock, overview sheet) and a smaller one for chips and stats inside it. Floating surfaces are slightly translucent and blur the plant behind them.</p>
+      <div class="ds-example dark ds-elevation">
+        <div class="elev-demo float frame"><code>--elevation-float</code><span>App bar, side panel, dock, overview</span></div>
+        <div class="elev-demo raised frame"><code>--elevation-raised</code><span>Floating stats, scanner chip</span></div>
+        <div class="elev-demo flat frame"><code>none</code><span>Cards inside a container</span></div>
+      </div>
+      <table class="ds-table" id="elevationTokens"><thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead><tbody></tbody></table>
+    </section>
+
     <section class="ds-section" id="scene">
       <h2>3D and motion</h2>
       <p>The 3D scene reads its colours, opacities and timing from tokens at runtime, so the drawing follows the same palette as the interface.</p>
@@ -111,10 +126,20 @@
     </section>
 
     <!-- ── Components ──────────────────────────────────────────────── -->
+    <section class="ds-section" id="floating">
+      <h2>Floating container</h2>
+      <div class="ds-example dark ds-floatstage">
+        <div class="ds-floatgrid" aria-hidden="true"></div>
+        <div class="box float frame" style="max-width: 22rem; background: var(--color-surface-float)"><h3>Line-card dock</h3><p class="ds-usage">Sits over the 3D view with a drop shadow and a blurred, translucent fill.</p></div>
+      </div>
+      <p class="ds-usage">Add <code>.float</code> to any container that sits over the full-screen 3D view, usually with <code>.frame</code> for the corner brackets. It sets <code>--color-surface-float</code>, a <code>--effect-blur-float</code> backdrop blur, <code>--shape-float-radius</code> and the <code>--elevation-float</code> shadow. Containers keep <code>--layout-float-gap</code> from the screen edge and from each other. Below the <code>--layout-breakpoint</code> they stop floating and stack.</p>
+    </section>
+
     <section class="ds-section" id="app-bar">
       <h2>App bar</h2>
-      <div class="ds-example col" style="padding: 0">
-        <header class="bar">
+      <div class="ds-example col dark ds-floatstage">
+        <div class="ds-floatgrid" aria-hidden="true"></div>
+        <header class="bar float frame" style="height: var(--layout-bar-height); flex-wrap: nowrap">
           <h1>Halden Ridge Cement Works</h1>
           <nav class="views" aria-label="Views (example)">
             <button aria-pressed="false">Overview</button>
@@ -125,7 +150,39 @@
           <span class="mode" data-mode="live">Live: Claude</span>
         </header>
       </div>
-      <p class="ds-usage"><code>.bar</code> with a diamond-marked title, the <code>.views</code> switcher (the selected view uses <code>aria-pressed="true"</code>), a red <code>.dot</code> when the hidden view has an alarm, the <code>.clock</code> and the <code>.mode</code> chip (<code>data-mode="live"</code> turns it yellow).</p>
+      <p class="ds-usage"><code>.bar.float.frame</code>, fixed to the top of the screen at <code>--layout-bar-height</code>, with a diamond-marked title, the <code>.views</code> switcher (the selected view uses <code>aria-pressed="true"</code>), a red <code>.dot</code> when the hidden view has an alarm, the <code>.clock</code> and the <code>.mode</code> chip (<code>data-mode="live"</code> turns it yellow).</p>
+    </section>
+
+    <section class="ds-section" id="side-panel">
+      <h2>Side panel</h2>
+      <div class="ds-example dark ds-floatstage ds-panels">
+        <div class="ds-floatgrid" aria-hidden="true"></div>
+        <aside class="panel float frame" data-collapsed="false" aria-label="Side panel, expanded (example)" style="height: 17rem; --layout-panel-width: 19rem">
+          <div class="panel-head">
+            <div class="tabs" role="tablist" aria-label="Tabs (example)"><button role="tab" aria-selected="true">Copilot</button><button role="tab" aria-selected="false">Event log<span class="badge">2</span></button></div>
+            <button class="icon-btn ds-toggle" aria-expanded="true" title="Collapse panel"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg><span class="sr-only">Collapse panel</span></button>
+          </div>
+          <div class="panel-body"><div class="pane"><p class="intro">Ask about production, emissions or vent activity.</p></div></div>
+          <div class="panel-rail" aria-hidden="true">
+            <button class="rail-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg></button>
+            <button class="rail-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h6"/></svg><span class="badge">2</span></button>
+            <span class="rail-label">Copilot</span>
+          </div>
+        </aside>
+        <aside class="panel float frame" data-collapsed="true" aria-label="Side panel, collapsed (example)" style="height: 17rem">
+          <div class="panel-head">
+            <div class="tabs" role="tablist" aria-label="Tabs (example)"><button role="tab" aria-selected="true">Copilot</button></div>
+            <button class="icon-btn ds-toggle" aria-expanded="false" title="Expand panel"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg><span class="sr-only">Expand panel</span></button>
+          </div>
+          <div class="panel-body" inert><div class="pane"></div></div>
+          <div class="panel-rail" aria-hidden="true">
+            <button class="rail-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg></button>
+            <button class="rail-btn" tabindex="-1"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h6"/></svg><span class="badge">2</span></button>
+            <span class="rail-label">Copilot</span>
+          </div>
+        </aside>
+      </div>
+      <p class="ds-usage"><code>.panel.float.frame</code> holds the copilot and event log. The <code>.icon-btn</code> in its header collapses it to a <code>--layout-panel-rail</code>-wide rail (set <code>data-collapsed="true"</code>) and expands it back to <code>--layout-panel-width</code>, animating over <code>--motion-panel</code>. The rail keeps one icon per tab, so the operator can jump straight to either, and carries the unseen-event <code>.badge</code>. Keep <code>aria-expanded</code> on the toggle in sync, and make the hidden body <code>inert</code>. In the prototype the choice is remembered between visits and <kbd>\</kbd> toggles the panel. Try the toggles above.</p>
     </section>
 
     <section class="ds-section" id="buttons">
@@ -325,7 +382,7 @@
       <div class="ds-example col" style="padding: 0">
         <div class="composer ds-composer"><input placeholder="Ask about last night, vents, trends…" aria-label="Ask the copilot (example)"><button class="btn primary">Ask</button></div>
       </div>
-      <p class="ds-usage"><code>.composer</code> pinned to the bottom of the copilot panel. While Claude is answering, the button becomes Stop (<code>.stop</code>).</p>
+      <p class="ds-usage"><code>.composer</code> pinned to the bottom of the side panel. While Claude is answering, the button becomes Stop (<code>.stop</code>).</p>
     </section>
   </main>
 </div>

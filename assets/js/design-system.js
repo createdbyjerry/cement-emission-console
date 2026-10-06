@@ -67,6 +67,17 @@ function renderCharts() {
       reference_line: { value: 0.85, label: "Target 0.850" } }));
 }
 
+// Side panel examples: the toggle collapses and expands its own panel
+for (const btn of document.querySelectorAll(".ds-toggle")) {
+  btn.addEventListener("click", () => {
+    const panel = btn.closest(".panel"), collapsed = panel.dataset.collapsed !== "true";
+    panel.dataset.collapsed = String(collapsed);
+    btn.setAttribute("aria-expanded", String(!collapsed));
+    btn.title = btn.querySelector(".sr-only").textContent = collapsed ? "Expand panel" : "Collapse panel";
+    panel.querySelector(".panel-body").inert = collapsed;
+  });
+}
+
 (async () => {
   renderCharts();
   try {
@@ -75,8 +86,9 @@ function renderCharts() {
     const { tokens, count } = await res.json();
     renderColors(tokens);
     renderType(tokens);
-    renderTable("shapeTokens", tokens.filter((t) => t.path.startsWith("shape.") || t.path.startsWith("effect.")));
-    renderTable("sceneTokens", tokens.filter((t) => t.path.startsWith("scene.") || t.path.startsWith("motion.") || t.path.startsWith("layout.")));
+    renderTable("shapeTokens", tokens.filter((t) => t.path.startsWith("shape.") || (t.path.startsWith("effect.") && !t.path.includes("blur"))));
+    renderTable("elevationTokens", tokens.filter((t) => t.path.startsWith("elevation.") || t.path.startsWith("layout.") || t.path.includes("blur") || ["color.surface.float", "color.surface.scrim"].includes(t.path)));
+    renderTable("sceneTokens", tokens.filter((t) => t.path.startsWith("scene.") || t.path.startsWith("motion.")));
     renderAll(tokens);
     $("tokenStatus").textContent = `${count} tokens, generated from tokens/tokens.json.`;
   } catch (e) {

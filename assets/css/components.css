@@ -9,9 +9,24 @@
 .frame::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
 .frame::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
 
+/* ── Floating container ─────────────────────────────────────────────── */
+/* Anything that floats over the full-screen 3D view: app bar, side panel, line-card dock, overview sheet.
+   Pair with .frame for the corner brackets. */
+.float { background: var(--color-surface-float); -webkit-backdrop-filter: blur(var(--effect-blur-float)); backdrop-filter: blur(var(--effect-blur-float));
+  border-radius: var(--shape-float-radius); box-shadow: var(--elevation-float), var(--elevation-rim); }
+
+/* ── Icon button and screen-reader text ─────────────────────────────────────────────── */
+.icon-btn { flex: none; display: inline-grid; place-items: center; width: 2rem; height: 2rem; padding: 0; position: relative;
+  background: transparent; border: var(--shape-border-width) solid var(--color-border-strong); color: var(--color-text-muted);
+  transition: color var(--motion-panel) var(--motion-ease), border-color var(--motion-panel) var(--motion-ease), background-color var(--motion-panel) var(--motion-ease); }
+.icon-btn:hover { color: var(--color-accent); border-color: var(--color-accent-border); background: var(--color-accent-subtle); }
+.icon-btn svg, .rail-btn svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: square; stroke-linejoin: miter; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
 /* ── App bar and view switcher ─────────────────────────────────────────────── */
-/* Header */
+/* Header. Add .float.frame to float it over the 3D view. */
 .bar { flex: none; display: flex; align-items: center; gap: 1rem; padding: 0.55rem 1.1rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface-base); flex-wrap: wrap; }
+.bar.float { border: var(--shape-border-width) solid var(--color-border-strong); background: var(--color-surface-float); }
 .bar h1 { margin: 0; font-family: var(--font-family-display); font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); letter-spacing: var(--font-tracking-normal); display: flex; align-items: center; gap: 0.55rem; }
 .bar h1::before { content: ""; width: 0.6rem; height: 0.6rem; background: var(--color-accent); transform: rotate(45deg); }
 .clock { font-family: var(--font-family-display); font-weight: var(--font-weight-semibold); color: var(--color-accent); letter-spacing: var(--font-tracking-wider); }
@@ -29,7 +44,7 @@
 
 /* ── Floating stats ─────────────────────────────────────────────── */
 /* Floating stats, pinned top left */
-.stats { width: 18.5rem; padding: 0.6rem 0.75rem 0.65rem; background: var(--color-surface-overlay); backdrop-filter: blur(var(--effect-blur-overlay)); }
+.stats { width: 18.5rem; padding: 0.6rem 0.75rem 0.65rem; background: var(--color-surface-overlay); -webkit-backdrop-filter: blur(var(--effect-blur-overlay)); backdrop-filter: blur(var(--effect-blur-overlay)); box-shadow: var(--elevation-raised); }
 .stats .caption { display: flex; justify-content: space-between; font-family: var(--font-family-display); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-accent); margin-bottom: 0.4rem; letter-spacing: var(--font-tracking-wide); }
 .stats .caption span { color: var(--color-text-muted); font-family: var(--font-family-body); font-weight: var(--font-weight-regular); }
 .stats .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem 0.9rem; }
@@ -73,6 +88,32 @@
 .lcard .msg.alarm { color: var(--color-status-alarm); font-weight: var(--font-weight-semibold); }
 .lcard .actions { display: flex; gap: 0.4rem; margin-top: 0.45rem; align-items: center; flex-wrap: wrap; }
 .confirm { font-size: var(--font-size-xs); flex-basis: 100%; color: var(--color-text); }
+
+/* ── Side panel: collapsible ─────────────────────────────────────────────── */
+/* .panel.float.frame with data-collapsed="true|false". Expanded, it shows the tabs and their panes;
+   collapsed, it shrinks to a rail with the expand button, one icon per tab and the unseen-event badge. */
+.panel { --panel-w: var(--layout-panel-width); display: flex; flex-direction: column; min-height: 0; min-width: 0; width: var(--panel-w); overflow: hidden;
+  transition: width var(--motion-panel) var(--motion-ease); }
+.panel[data-collapsed="true"] { --panel-w: var(--layout-panel-rail); }
+.panel-head { flex: none; display: flex; align-items: center; gap: 0.5rem; padding-right: 0.6rem; border-bottom: var(--shape-border-width) solid var(--color-border); }
+.panel-head .tabs { flex: 1; min-width: 0; border-bottom: 0; }
+.panel-head .icon-btn svg { transition: transform var(--motion-panel) var(--motion-ease); }
+.panel-body { flex: 1; min-height: 0; display: flex; flex-direction: column; width: var(--layout-panel-width); max-width: 100vw;
+  transition: opacity var(--motion-panel) var(--motion-ease); }
+.pane { flex: 1; min-height: 0; overflow-y: auto; padding: 0.85rem 1rem 1rem; }
+.pane[hidden] { display: none; }
+.chat { display: flex; flex-direction: column; gap: 0.6rem; }
+.panel-rail { display: none; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.6rem 0; }
+.rail-btn { position: relative; display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; background: transparent; border: 0; border-left: var(--shape-rule-width) solid transparent; color: var(--color-text-muted); }
+.rail-btn:hover { color: var(--color-accent); border-left-color: var(--color-accent); background: var(--color-accent-subtle); }
+.rail-btn .badge { position: absolute; top: -0.2rem; right: -0.45rem; margin: 0; min-width: 1rem; padding: 0 0.2rem; line-height: 1.3; }
+.rail-label { writing-mode: vertical-rl; transform: rotate(180deg); margin-top: 0.6rem; font-family: var(--font-family-display); font-size: var(--font-size-2xs); font-weight: var(--font-weight-semibold); letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-muted); }
+/* Collapsed */
+.panel[data-collapsed="true"] .panel-head { padding: 0.6rem 0; justify-content: center; }
+.panel[data-collapsed="true"] .panel-head .tabs { display: none; }
+.panel[data-collapsed="true"] .panel-head .icon-btn svg { transform: rotate(180deg); }
+.panel[data-collapsed="true"] .panel-body { opacity: 0; pointer-events: none; position: absolute; visibility: hidden; transition: opacity var(--motion-panel) var(--motion-ease), visibility 0s linear var(--motion-panel); }
+.panel[data-collapsed="true"] .panel-rail { display: flex; }
 
 /* ── Tabs and badge ─────────────────────────────────────────────── */
 .tabs { flex: none; display: flex; border-bottom: 1px solid var(--color-border); padding: 0 1rem; }
