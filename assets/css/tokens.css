@@ -10,8 +10,9 @@
   --color-surface-raised: #131a1f; /* Cards and boxes that sit on a panel. */
   --color-surface-overlay: rgba(14, 20, 24, 0.86); /* Floating panels over the 3D view. */
   --color-surface-overlay-subtle: rgba(10, 14, 17, 0.72); /* Small chips over the 3D view: HUD, scanner status, labels. */
-  --color-surface-float: rgba(14, 20, 24, 0.9); /* Floating containers over the 3D view: app bar, side panel, line-card dock, overview sheet. */
-  --color-surface-scrim: rgba(6, 9, 11, 0.55); /* Dims the 3D view behind the overview sheet. */
+  --color-surface-float: rgba(14, 20, 24, 0.9); /* Floating containers over the 3D view: app bar, side panel, line-card dock, and the overview's top and bottom bars. */
+  --color-surface-card: rgba(14, 20, 24, 0.8); /* Overview cards. Each card floats on its own over the 3D view, because the overview column itself has no background. */
+  --color-surface-card-strong: rgba(19, 26, 31, 0.92); /* Overview cards on hover, and tables inside them, so text stays legible over bright smoke. */
 
   /* color.text */
   --color-text: #ece8db; /* Primary text. */
@@ -101,8 +102,12 @@
   /* layout */
   --layout-float-gap: 12px; /* Gap between floating containers and the screen edge, and between each other. */
   --layout-bar-height: 52px; /* Height of the floating app bar. */
-  --layout-panel-width: clamp(340px, 28vw, 440px); /* Width of the expanded side panel (copilot and event log). */
-  --layout-panel-rail: 52px; /* Width of the side panel when collapsed to a rail. */
+  --layout-panel-width: clamp(340px, 28vw, 440px); /* Width of the expanded right side panel (copilot and event log). */
+  --layout-panel-rail: 52px; /* Width of the right side panel when collapsed to a rail. */
+  --layout-dash-width: clamp(320px, 25vw, 400px); /* Width of the expanded overview column on the left. */
+  --layout-dash-rail: var(--layout-panel-rail); /* Width of the overview column when collapsed to a rail. Matches the right panel's rail. */
+  --layout-dash-card-gap: 8px; /* Space between cards in the overview column. */
+  --layout-dash-fade: 28px; /* Length of the fade where scrolling cards disappear under the overview's top and bottom bars. */
   --layout-breakpoint: 860px; /* Below this width the layout stacks and containers stop floating. CSS media queries can't read variables, so console.css repeats this value. */
 
   /* effect */
@@ -112,8 +117,9 @@
   --effect-vignette-opacity: 0.45; /* Darkening at the edges of the 3D view. */
 
   /* elevation */
-  --elevation-float: 0px 18px 44px -12px rgba(0, 0, 0, 0.75), 0px 2px 8px 0px rgba(0, 0, 0, 0.45); /* Drop shadow for floating containers: app bar, side panel, line-card dock, overview sheet. */
+  --elevation-float: 0px 18px 44px -12px rgba(0, 0, 0, 0.75), 0px 2px 8px 0px rgba(0, 0, 0, 0.45); /* Drop shadow for floating containers: app bar, side panel, line-card dock, overview top and bottom bars. */
   --elevation-raised: 0px 6px 18px -6px rgba(0, 0, 0, 0.6); /* Smaller shadow for chips and stats that float over the 3D view. */
+  --elevation-card: 0px 10px 24px -10px rgba(0, 0, 0, 0.7), 0px 1px 3px 0px rgba(0, 0, 0, 0.4); /* Shadow for each card in the overview column, so it separates from the 3D view without a container behind it. */
   --elevation-rim: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.04); /* Faint top highlight inside floating containers, so their edge reads against dark scenery. */
 
   /* scene */
@@ -126,6 +132,7 @@
 
   /* motion */
   --motion-scanner-period: 10s; /* One full turn of the air scanner, and the interval of a full air pass. */
-  --motion-panel: 240ms; /* Side panel collapse and expand, and the 3D view re-centring with it. */
+  --motion-panel: 240ms; /* Side panel and overview column collapse and expand, and the 3D view re-centring with them. */
+  --motion-fade: 160ms; /* Scroll-edge fades in the overview column appearing and disappearing. */
   --motion-ease: cubic-bezier(0.2, 0.7, 0.2, 1); /* Easing for panel and container transitions. */
 }

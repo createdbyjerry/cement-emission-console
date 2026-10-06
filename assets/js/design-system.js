@@ -78,6 +78,21 @@ for (const btn of document.querySelectorAll(".ds-toggle")) {
   });
 }
 
+// Overview column example: the toggle collapses and expands it, and the cards fade at the scroll edges
+for (const btn of document.querySelectorAll(".ds-dash-toggle")) {
+  btn.addEventListener("click", () => {
+    const dash = btn.closest(".dash"), collapsed = dash.dataset.collapsed !== "true";
+    dash.dataset.collapsed = String(collapsed);
+    dash.querySelector(".dash-body").inert = collapsed;
+    const head = dash.querySelector(".dash-head .icon-btn");
+    head.setAttribute("aria-expanded", String(!collapsed));
+  });
+}
+for (const sc of document.querySelectorAll(".ds-dashes .dash-scroll")) {
+  const fades = () => { sc.dataset.moreAbove = String(sc.scrollTop > 1); sc.dataset.moreBelow = String(sc.scrollTop < sc.scrollHeight - sc.clientHeight - 1); };
+  sc.addEventListener("scroll", fades, { passive: true }); fades();
+}
+
 (async () => {
   renderCharts();
   try {
@@ -87,7 +102,7 @@ for (const btn of document.querySelectorAll(".ds-toggle")) {
     renderColors(tokens);
     renderType(tokens);
     renderTable("shapeTokens", tokens.filter((t) => t.path.startsWith("shape.") || (t.path.startsWith("effect.") && !t.path.includes("blur"))));
-    renderTable("elevationTokens", tokens.filter((t) => t.path.startsWith("elevation.") || t.path.startsWith("layout.") || t.path.includes("blur") || ["color.surface.float", "color.surface.scrim"].includes(t.path)));
+    renderTable("elevationTokens", tokens.filter((t) => t.path.startsWith("elevation.") || t.path.startsWith("layout.") || t.path.includes("blur") || ["color.surface.float", "color.surface.card", "color.surface.card-strong"].includes(t.path)));
     renderTable("sceneTokens", tokens.filter((t) => t.path.startsWith("scene.") || t.path.startsWith("motion.")));
     renderAll(tokens);
     $("tokenStatus").textContent = `${count} tokens, generated from tokens/tokens.json.`;

@@ -35,6 +35,7 @@
     <h2>Components</h2>
     <a href="#floating">Floating container</a>
     <a href="#app-bar">App bar</a>
+    <a href="#overview-column">Overview column</a>
     <a href="#side-panel">Side panel</a>
     <a href="#buttons">Buttons</a>
     <a href="#pills">Status pills</a>
@@ -67,7 +68,7 @@
         <div class="box frame"><h3>One accent, one alarm</h3><p class="ds-usage">Yellow marks what's active, live or selected. Red is reserved for permit breaches and actions that stop production. Nothing else competes for attention.</p></div>
         <div class="box frame"><h3>A drawing, not a render</h3><p class="ds-usage">The plant is drawn as flat outlines with an orthographic camera, so it reads like a schematic from any angle and the data stays the focus.</p></div>
         <div class="box frame"><h3>Humans decide</h3><p class="ds-usage">Automation (capture vents) and the copilot act or recommend, but only an operator can shut a line down, and always through a confirmation step.</p></div>
-        <div class="box frame"><h3>The plant is the canvas</h3><p class="ds-usage">The 3D view fills the screen. Controls float above it in shadowed containers, and the camera keeps the plant centred in whatever space they leave open.</p></div>
+        <div class="box frame"><h3>The plant is the canvas</h3><p class="ds-usage">The 3D view fills the screen and never leaves it. The overview sits on the left and the copilot on the right; both collapse to rails, and the camera keeps the plant centred in whatever space they leave open.</p></div>
         <div class="box frame"><h3>Numbers you can cite</h3><p class="ds-usage">Figures use the display face with tabular numerals. Every report value traces back to a logged record, and the copilot fetches data before it answers.</p></div>
       </div>
     </section>
@@ -104,9 +105,10 @@
 
     <section class="ds-section" id="elevation">
       <h2>Elevation and layout</h2>
-      <p>One elevation level for containers that float over the 3D view (app bar, side panel, line-card dock, overview sheet) and a smaller one for chips and stats inside it. Floating surfaces are slightly translucent and blur the plant behind them.</p>
+      <p>One elevation level for containers that float over the 3D view (app bar, side panel, line-card dock, the overview's top and bottom bars), a card level for overview cards that float on their own, and a smaller one for chips and stats. Floating surfaces are slightly translucent and blur the plant behind them.</p>
       <div class="ds-example dark ds-elevation">
-        <div class="elev-demo float frame"><code>--elevation-float</code><span>App bar, side panel, dock, overview</span></div>
+        <div class="elev-demo float frame"><code>--elevation-float</code><span>App bar, side panel, dock, overview bars</span></div>
+        <div class="elev-demo dcard frame"><code>--elevation-card</code><span>Overview cards</span></div>
         <div class="elev-demo raised frame"><code>--elevation-raised</code><span>Floating stats, scanner chip</span></div>
         <div class="elev-demo flat frame"><code>none</code><span>Cards inside a container</span></div>
       </div>
@@ -141,16 +143,70 @@
         <div class="ds-floatgrid" aria-hidden="true"></div>
         <header class="bar float frame" style="height: var(--layout-bar-height); flex-wrap: nowrap">
           <h1>Halden Ridge Cement Works</h1>
-          <nav class="views" aria-label="Views (example)">
-            <button aria-pressed="false">Overview</button>
-            <button aria-pressed="true">Emissions console<span class="dot" title="A line is above its permit limit"></span></button>
-          </nav>
           <span class="spacer"></span>
           <span class="clock">14:23:05</span>
           <span class="mode" data-mode="live">Live: Claude</span>
         </header>
       </div>
-      <p class="ds-usage"><code>.bar.float.frame</code>, fixed to the top of the screen at <code>--layout-bar-height</code>, with a diamond-marked title, the <code>.views</code> switcher (the selected view uses <code>aria-pressed="true"</code>), a red <code>.dot</code> when the hidden view has an alarm, the <code>.clock</code> and the <code>.mode</code> chip (<code>data-mode="live"</code> turns it yellow).</p>
+      <p class="ds-usage"><code>.bar.float.frame</code>, fixed to the top of the screen at <code>--layout-bar-height</code>, with a diamond-marked title, the <code>.clock</code> and the <code>.mode</code> chip (<code>data-mode="live"</code> turns it yellow). There is no view switcher: the 3D view, the overview and the copilot are all on screen at once.</p>
+    </section>
+
+    <section class="ds-section" id="overview-column">
+      <h2>Overview column</h2>
+      <div class="ds-example dark ds-floatstage ds-dashes">
+        <div class="ds-floatgrid" aria-hidden="true"></div>
+        <aside class="dash" data-collapsed="false" aria-label="Overview column, expanded (example)">
+          <div class="dash-body">
+            <div class="dash-top float frame">
+              <div class="dash-head">
+                <div class="dash-title"><h2>Regulatory overview</h2><p>Permit HR-ETS-0417 · Sep 6 to Today</p></div>
+                <button class="icon-btn ds-dash-toggle" aria-expanded="true" title="Collapse overview"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3l-5 5 5 5"/></svg><span class="sr-only">Collapse overview</span></button>
+              </div>
+              <div class="seg seg-fill" role="group" aria-label="Reporting period (example)"><button aria-pressed="false">Last 7 days</button><button aria-pressed="true">Last 30 days</button><button aria-pressed="false">Year to date</button></div>
+            </div>
+            <div class="dash-scroll" tabindex="0" aria-label="Overview figures (example)">
+              <div class="dash-cards">
+                <div class="live-strip dcard"><b>Live: within permit limits</b><span>Line 1 98.9 t/h</span><span>Line 2 96.8 t/h</span></div>
+                <div class="kpis">
+                  <div class="kpi dcard frame"><div class="lbl">CO2 released to air</div><div class="val">139,996<small>t</small></div><div class="sub">356.0 t captured</div></div>
+                  <div class="kpi dcard frame"><div class="lbl">Permit-limit exceedances</div><div class="val">4</div><div class="sub"><span class="bad">113 min above 112 t/h</span></div></div>
+                  <div class="kpi dcard frame"><div class="lbl">Annual cap used</div><div class="val">72<small>%</small></div><div class="capbar"><i style="width: 72%"></i><em style="left: 76%"></em></div><div class="sub"><span class="good">On track</span></div></div>
+                  <div class="kpi dcard frame"><div class="lbl">Monitoring data</div><div class="val">99.4<small>% min</small></div><div class="sub">4 fence-line air alerts</div></div>
+                </div>
+                <section class="box dcard frame"><h3>Exceedance register (2)</h3>
+                  <div class="reg">
+                    <div class="reg-row"><div class="reg-top"><b>Line 2</b><time>Mon, Oct 5 02:33</time><span>32 min</span><span class="over">116 t/h</span></div><div class="reg-meta"><span>Kiln feed instability</span>. Line shut down by night shift operator.</div></div>
+                    <div class="reg-row"><div class="reg-top"><b>Line 1</b><time>Tue, Sep 29 14:10</time><span>18 min</span><span class="over">114 t/h</span></div><div class="reg-meta"><span>Burner tuning</span>. Vent ran at full capacity; fuel rate reduced.</div></div>
+                  </div>
+                </section>
+                <section class="box dcard frame"><h3>CO2 by source, before capture</h3>
+                  <div class="splitbar" role="img" aria-label="Calcination 62%, fuel combustion 38%"><span style="width: 62%; background: var(--color-chart-1)"></span><span style="width: 38%; background: var(--color-chart-3)"></span></div>
+                  <div class="srcrow"><span><i style="background: var(--color-chart-1)"></i>Calcination (process)</span><span>86,962 t, 62%</span></div>
+                  <div class="srcrow"><span><i style="background: var(--color-chart-3)"></i>Fuel combustion</span><span>53,390 t, 38%</span></div>
+                </section>
+              </div>
+            </div>
+            <div class="dash-bottom float frame">
+              <div class="label">Export this period<span class="export-status">Saved halden-ridge_emissions.csv</span></div>
+              <div class="export-btns"><button class="btn primary">Report PDF</button><button class="btn">Data CSV</button><button class="btn">Register CSV</button></div>
+            </div>
+          </div>
+          <div class="dash-rail float frame">
+            <button class="icon-btn ds-dash-toggle" tabindex="-1" title="Expand overview"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg><span class="sr-only">Expand overview</span></button>
+            <button class="rail-btn" tabindex="-1"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13V8M6.5 13V4M10 13V9.5M13.5 13V6"/></svg></button>
+            <span class="rail-label">Overview</span>
+          </div>
+        </aside>
+        <aside class="dash" data-collapsed="true" aria-label="Overview column, collapsed (example)">
+          <div class="dash-body" inert><div class="dash-top float frame"></div></div>
+          <div class="dash-rail float frame">
+            <button class="icon-btn" tabindex="-1" title="Expand overview"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg><span class="sr-only">Expand overview</span></button>
+            <button class="rail-btn" tabindex="-1"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13V8M6.5 13V4M10 13V9.5M13.5 13V6"/></svg><span class="dot" title="A line is above its permit limit"></span></button>
+            <span class="rail-label">Overview</span>
+          </div>
+        </aside>
+      </div>
+      <p class="ds-usage"><code>.dash</code> is an invisible container: no background, border or shadow, so the plant shows through every gap. Inside it, <code>.dash-top</code> (title, collapse button and the reporting-period <code>.seg.seg-fill</code>) and <code>.dash-bottom</code> (exports) are <code>.float.frame</code> bars, and every card between them is a <code>.dcard</code> that floats on its own with <code>--elevation-card</code> over <code>--color-surface-card</code>. The cards scroll inside <code>.dash-scroll</code> and fade out over <code>--layout-dash-fade</code> where they meet a bar, but only on a side with more to scroll to (<code>data-more-above</code>, <code>data-more-below</code>), so the list visibly ends at the top and the bottom. Set <code>data-collapsed="true"</code> to shrink it to a <code>--layout-dash-rail</code> rail, with an alarm <code>.dot</code> when a line is over its limit. In the prototype the choice is remembered between visits and <kbd>[</kbd> toggles it. Scroll the cards and try the toggle above.</p>
     </section>
 
     <section class="ds-section" id="side-panel">
@@ -326,7 +382,10 @@
       <div class="ds-example">
         <div class="seg" role="group" aria-label="Reporting period (example)"><button aria-pressed="false">Last 7 days</button><button aria-pressed="true">Last 30 days</button><button aria-pressed="false">Year to date</button></div>
       </div>
-      <p class="ds-usage"><code>.seg</code> for picking one option from a short set, such as the reporting period. The chosen option has <code>aria-pressed="true"</code>.</p>
+      <div class="ds-example" style="max-width: 24rem">
+        <div class="seg seg-fill" role="group" aria-label="Reporting period, full width (example)" style="width: 100%"><button aria-pressed="true">Last 7 days</button><button aria-pressed="false">Last 30 days</button><button aria-pressed="false">Year to date</button></div>
+      </div>
+      <p class="ds-usage"><code>.seg</code> for picking one option from a short set, such as the reporting period. The chosen option has <code>aria-pressed="true"</code>. Add <code>.seg-fill</code> to share the full width equally, as in the overview's top bar.</p>
     </section>
 
     <section class="ds-section" id="kpi">
@@ -347,7 +406,7 @@
         <div class="live-strip"><b>Live: within permit limits</b><span>Line 1 98.9 t/h</span><span>Line 2 96.8 t/h</span></div>
         <div class="live-strip alarm"><b>Live: permit limit exceeded</b><span>Line 1 122.1 t/h</span><span>Line 2 96.8 t/h</span><button class="btn danger">Open emissions console</button></div>
       </div>
-      <p class="ds-usage"><code>.live-strip</code> keeps live state visible on pages that are otherwise historical. Add <code>.alarm</code> during a breach, with a way to get to the controls.</p>
+      <p class="ds-usage"><code>.live-strip</code> keeps live state visible next to historical figures. Add <code>.alarm</code> during a breach, with a way to get to the controls; in the overview its button selects the line in 3D.</p>
     </section>
 
     <section class="ds-section" id="exports">
@@ -355,7 +414,7 @@
       <div class="ds-example col">
         <div class="exports frame"><span class="label">Export this period</span><button class="btn primary">Compliance report (PDF)</button><button class="btn">Emissions data (CSV)</button><button class="btn">Exceedance register (CSV)</button><span class="export-status">Saved halden-ridge_last-30-days_emissions.csv</span></div>
       </div>
-      <p class="ds-usage"><code>.exports.frame</code>. Name each export by what it contains and its format. <code>.export-status</code> confirms the result in place; add <code>.bad</code> when it fails.</p>
+      <p class="ds-usage"><code>.exports.frame</code> for wide layouts. In the overview column the same exports sit in <code>.dash-bottom</code> as an <code>.export-btns</code> grid with short labels, and the full name in each button's title. Name each export by what it contains and its format. <code>.export-status</code> confirms the result in place; add <code>.bad</code> when it fails.</p>
     </section>
 
     <section class="ds-section" id="table">
@@ -374,7 +433,7 @@
           <div class="srcrow"><span><i style="background: var(--color-chart-3)"></i>Fuel combustion</span><span>53,390 t, 38%</span></div>
         </section>
       </div>
-      <p class="ds-usage"><code>table.data</code> inside <code>.table-wrap</code> (scrolls sideways on small screens). Right-align figures with <code>.num</code>; mark values over a limit or target with <code>.over</code>.</p>
+      <p class="ds-usage"><code>table.data</code> inside <code>.table-wrap</code> (scrolls sideways on small screens). Right-align figures with <code>.num</code>; mark values over a limit or target with <code>.over</code>. Where a table has too many columns for a narrow card, as with the exceedance register in the overview column, use the stacked <code>.reg</code> list instead (shown in the overview column example).</p>
     </section>
 
     <section class="ds-section" id="composer">

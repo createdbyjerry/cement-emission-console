@@ -72,6 +72,9 @@ body.docs { height: auto; min-height: 100%; display: block; }
 .elev-demo span { font-size: var(--font-size-xs); color: var(--color-text-muted); }
 .elev-demo.float { background: var(--color-surface-float); }
 .elev-demo.raised { box-shadow: var(--elevation-raised); }
+.elev-demo.dcard { background: var(--color-surface-card); }
+.ds-dashes { gap: 1.5rem; align-items: stretch; }
+.ds-dashes .dash { flex: none; height: 30rem; --layout-dash-width: 21rem; }
 .docs kbd { font-family: var(--font-family-code); font-size: var(--font-size-xs); padding: 0 0.3rem; border: var(--shape-border-width) solid var(--color-border-strong); color: var(--color-text); }
 
 @media (max-width: 860px) {

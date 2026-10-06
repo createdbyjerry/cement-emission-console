@@ -10,7 +10,7 @@
 .frame::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
 
 /* ── Floating container ─────────────────────────────────────────────── */
-/* Anything that floats over the full-screen 3D view: app bar, side panel, line-card dock, overview sheet.
+/* Anything that floats over the full-screen 3D view: app bar, side panel, line-card dock, overview bars.
    Pair with .frame for the corner brackets. */
 .float { background: var(--color-surface-float); -webkit-backdrop-filter: blur(var(--effect-blur-float)); backdrop-filter: blur(var(--effect-blur-float));
   border-radius: var(--shape-float-radius); box-shadow: var(--elevation-float), var(--elevation-rim); }
@@ -23,7 +23,7 @@
 .icon-btn svg, .rail-btn svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: square; stroke-linejoin: miter; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-/* ── App bar and view switcher ─────────────────────────────────────────────── */
+/* ── App bar ─────────────────────────────────────────────── */
 /* Header. Add .float.frame to float it over the 3D view. */
 .bar { flex: none; display: flex; align-items: center; gap: 1rem; padding: 0.55rem 1.1rem; border-bottom: 1px solid var(--color-border); background: var(--color-surface-base); flex-wrap: wrap; }
 .bar.float { border: var(--shape-border-width) solid var(--color-border-strong); background: var(--color-surface-float); }
@@ -32,13 +32,8 @@
 .clock { font-family: var(--font-family-display); font-weight: var(--font-weight-semibold); color: var(--color-accent); letter-spacing: var(--font-tracking-wider); }
 .mode { font-size: var(--font-size-xs); padding: 0.12rem 0.6rem; border: 1px solid var(--color-border-strong); color: var(--color-text-muted); white-space: nowrap; }
 .mode[data-mode="live"] { border-color: var(--color-accent-border); color: var(--color-accent); }
-/* View switcher */
 .spacer { flex: 1; }
-.views { display: flex; }
-.views button { background: transparent; border: 1px solid var(--color-border-strong); padding: 0.28rem 0.85rem; font-family: var(--font-family-display); font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); color: var(--color-text-muted); letter-spacing: var(--font-tracking-normal); }
-.views button + button { border-left: 0; }
-.views button:hover { color: var(--color-text); }
-.views button[aria-pressed="true"] { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
+/* Alarm dot: a line is above its permit limit */
 .dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--color-status-alarm); margin-left: 0.45rem; vertical-align: 1px; box-shadow: 0 0 6px var(--color-status-alarm); }
 .dot[hidden] { display: none; }
 
@@ -174,6 +169,9 @@
 .seg button { background: var(--color-surface-raised); border: 1px solid var(--color-border-strong); padding: 0.35rem 0.85rem; font-family: var(--font-family-display); font-weight: var(--font-weight-semibold); font-size: var(--font-size-sm); color: var(--color-text-muted); }
 .seg button + button { border-left: 0; }
 .seg button[aria-pressed="true"] { background: var(--color-accent); color: var(--color-text-on-accent); border-color: var(--color-accent); }
+.seg button:not([aria-pressed="true"]):hover { color: var(--color-text); }
+/* .seg-fill: options share the full width, for narrow containers */
+.seg-fill button { flex: 1 1 0; min-width: 0; padding-inline: 0.4rem; white-space: nowrap; }
 
 /* ── Export bar ─────────────────────────────────────────────── */
 .exports { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding: 0.6rem 0.75rem; }
@@ -219,3 +217,75 @@ table.data .over { color: var(--color-status-alarm); font-weight: var(--font-wei
 .barlink { color: var(--color-text-muted); font-size: var(--font-size-sm); text-decoration: none; border-bottom: var(--shape-border-width) solid transparent; }
 .barlink:hover { color: var(--color-accent); border-color: var(--color-accent); }
 .barlink[aria-current="page"] { color: var(--color-accent); }
+
+/* ── Overview column: invisible container, floating bars and cards ─────────────────────────────────────────────── */
+/* .dash with data-collapsed="true|false". The column has no background, border or shadow: its top bar
+   (title, collapse button, reporting period), its cards and its bottom bar (exports) each float on their
+   own. Cards scroll between the bars and fade out where they meet them, so the list has a clear end.
+   Collapsed, it becomes a .float rail like the side panel's. */
+@property --fade-top { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-bottom { syntax: "<length>"; inherits: false; initial-value: 0px; }
+.dash { --dash-w: var(--layout-dash-width); display: flex; flex-direction: column; min-height: 0; width: var(--dash-w); background: none; border: 0; box-shadow: none;
+  transition: width var(--motion-panel) var(--motion-ease); }
+.dash[data-collapsed="true"] { --dash-w: var(--layout-dash-rail); }
+.dash-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--layout-dash-card-gap); width: var(--layout-dash-width); max-width: 100vw;
+  transition: opacity var(--motion-panel) var(--motion-ease); }
+.dash-top, .dash-bottom { flex: none; position: relative; z-index: 1; padding: 0.6rem 0.65rem; display: grid; gap: 0.55rem; }
+.dash-head { display: flex; align-items: flex-start; gap: 0.6rem; }
+.dash-title { flex: 1; min-width: 0; }
+.dash-title h2 { margin: 0; font-family: var(--font-family-display); font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); letter-spacing: var(--font-tracking-normal); line-height: 1.25; }
+.dash-title p { margin: 0.05rem 0 0; color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.dash-head .icon-btn { margin-top: 0.05rem; }
+/* The scroller extends into the screen gap on both sides so card shadows aren't clipped */
+.dash-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin-inline: calc(var(--layout-float-gap) * -1); padding: 0 var(--layout-float-gap);
+  scrollbar-width: thin; scrollbar-color: var(--color-border-strong) transparent; scroll-padding-block: var(--layout-dash-fade);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  transition: --fade-top var(--motion-fade) linear, --fade-bottom var(--motion-fade) linear; }
+.dash-scroll:focus-visible { outline: none; }
+.dash-scroll:focus-visible .dash-cards { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.dash-scroll[data-more-above="true"] { --fade-top: var(--layout-dash-fade); }
+.dash-scroll[data-more-below="true"] { --fade-bottom: var(--layout-dash-fade); }
+.dash-cards { display: flex; flex-direction: column; gap: var(--layout-dash-card-gap); padding-block: 2px; }
+.dash-cards .kpis { grid-template-columns: 1fr; gap: var(--layout-dash-card-gap); }   /* stacked: one KPI card per row */
+.dash-cards .kpi .val { font-size: var(--font-size-2xl); }
+/* Each card floats on its own */
+.dcard { background: var(--color-surface-card); -webkit-backdrop-filter: blur(var(--effect-blur-float)); backdrop-filter: blur(var(--effect-blur-float));
+  border-radius: var(--shape-float-radius); box-shadow: var(--elevation-card), var(--elevation-rim); transition: background-color var(--motion-panel) var(--motion-ease); }
+.dcard:hover { background: var(--color-surface-card-strong); }
+.dcard.box, .dcard.chart { padding: 0.6rem 0.7rem 0.65rem; }
+.dcard h3, .dcard.chart h4 { font-size: var(--font-size-md); margin-bottom: 0.4rem; }
+.dcard table.data { font-size: var(--font-size-xs); }
+.dcard table.data th, .dcard table.data td { padding: 0.28rem 0.3rem; }
+.dcard.live-strip { border-color: var(--color-border-strong); background: var(--color-surface-card); }
+.dcard.live-strip.alarm { border-color: var(--color-status-alarm); background: var(--color-status-alarm-subtle); }
+.method.dcard { padding: 0.55rem 0.7rem; }
+.dash-cards .live-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 0.15rem 0.8rem; padding: 0.55rem 0.7rem; }
+.dash-cards .live-strip b { grid-column: 1 / -1; }
+.dash-cards .live-strip .btn { grid-column: 1 / -1; margin: 0.3rem 0 0; justify-self: start; }
+/* Bottom bar: exports */
+.dash-bottom .label { font-family: var(--font-family-display); font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); color: var(--color-text-muted); letter-spacing: var(--font-tracking-wide); display: flex; justify-content: space-between; gap: 0.5rem; white-space: nowrap; }
+.dash-bottom .export-status { margin: 0; font-family: var(--font-family-body); font-weight: var(--font-weight-regular); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.export-btns { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 0.35rem; }
+.export-btns .btn { padding-inline: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--font-size-xs); }
+/* Rail */
+.dash-rail { display: none; flex: 1; flex-direction: column; align-items: center; gap: 0.4rem; padding: 0.6rem 0; min-height: 0; }
+.dash-rail .rail-btn { border-left: 0; border-right: var(--shape-rule-width) solid transparent; }
+.dash-rail .rail-btn:hover { border-right-color: var(--color-accent); }
+.dash-rail .rail-btn .dot { position: absolute; top: 0.05rem; right: 0.05rem; margin: 0; width: 0.45rem; height: 0.45rem; }
+/* Collapsed */
+.dash[data-collapsed="true"] .dash-body { opacity: 0; pointer-events: none; position: absolute; visibility: hidden; transition: opacity var(--motion-panel) var(--motion-ease), visibility 0s linear var(--motion-panel); }
+.dash[data-collapsed="true"] .dash-rail { display: flex; }
+
+/* ── Exceedance register list ─────────────────────────────────────────────── */
+/* The register as stacked rows, for narrow cards where a six-column table won't fit */
+.reg { display: grid; }
+.reg-row { padding: 0.4rem 0; border-bottom: var(--shape-border-width) solid var(--color-border); display: grid; gap: 0.1rem; }
+.reg-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.reg-row:first-child { padding-top: 0; }
+.reg-top { display: flex; gap: 0.5rem; align-items: baseline; font-size: var(--font-size-sm); }
+.reg-top b { font-family: var(--font-family-display); font-weight: var(--font-weight-semibold); }
+.reg-top time { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.reg-top .over { margin-left: auto; color: var(--color-status-alarm); font-family: var(--font-family-display); font-weight: var(--font-weight-semibold); white-space: nowrap; }
+.reg-meta { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.reg-meta span { color: var(--color-text); }

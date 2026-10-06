@@ -163,20 +163,48 @@ const overview = {
   period: "last_30_days",
   summary: null,
   liveEl: null,
+  status: null,
 
+  /* The overview column is always on screen, left of the 3D view. render() redraws its three parts:
+     the reporting-period filter in the top bar, the cards, and the export buttons in the bottom bar. */
   render() {
     const c = overview.summary = complianceSummary({ period: overview.period });
-    const t = c.totals, box = $("overview");
-    const kpi = (label, value, unit, ...sub) => h("div", { class: "kpi frame" }, h("div", { class: "lbl" }, label), h("div", { class: "val" }, value, unit ? h("small", {}, unit) : null), ...sub);
+    overview.renderHead(c);
+    overview.renderCards(c);
+    overview.renderExports(c);
+    if (typeof layout !== "undefined") layout.updateFades();
+  },
 
-    const status = h("span", { class: "export-status", "aria-live": "polite" });
-    const exportBtn = (label, make, primary) => h("button", { class: "btn" + (primary ? " primary" : ""), onclick: async () => {
+  renderHead(c) {
+    const day = (x) => String(x).replace(/\s+\d{1,2}:\d{2}(:\d{2})?$/, "");   // drop the time of day
+    $("dashSub").textContent = `Permit ${PERMIT_ID} · ${day(c.from)} to ${day(c.to)}`;
+    $("period").replaceChildren(...Object.entries(PERIOD_NAMES).map(([k, v]) =>
+      h("button", { "aria-pressed": String(overview.period === k), onclick: () => {
+        if (overview.period === k) return;
+        overview.period = k; overview.render(); $("dashScroll").scrollTo({ top: 0 });
+      } }, v)));
+  },
+
+  renderExports(c) {
+    const status = overview.status ||= h("span", { class: "export-status", "aria-live": "polite" });
+    const exportBtn = (label, title, make, primary) => h("button", { class: "btn" + (primary ? " primary" : ""), title, onclick: async () => {
       status.className = "export-status"; status.textContent = "Preparing…";
       try { const r = await make(); status.textContent = r.msg; status.classList.toggle("bad", !r.ok); }
       catch (e) { status.textContent = `Export failed: ${e.message}`; status.classList.add("bad"); }
     } }, label);
     const pdfReady = !!window.jspdf?.jsPDF;
+    $("exports").replaceChildren(
+      h("div", { class: "label" }, "Export this period", status),
+      h("div", { class: "export-btns" },
+        pdfReady ? exportBtn("Report PDF", "Compliance report (PDF)", () => saveFile(`${fileStem(c)}_compliance-report.pdf`, buildPdf(c)), true)
+                 : h("span", { class: "export-status bad" }, "PDF unavailable"),
+        exportBtn("Data CSV", "Emissions data (CSV)", () => saveFile(`${fileStem(c)}_emissions.csv`, emissionsCsv(c))),
+        exportBtn("Register CSV", "Exceedance register (CSV)", () => saveFile(`${fileStem(c)}_exceedances.csv`, registerCsv(c)))));
+  },
 
+  renderCards(c) {
+    const t = c.totals;
+    const kpi = (label, value, unit, ...sub) => h("div", { class: "kpi dcard frame" }, h("div", { class: "lbl" }, label), h("div", { class: "val" }, value, unit ? h("small", {}, unit) : null), ...sub);
     const capUsed = c.annual_cap.used_pct, capEl = c.annual_cap.year_elapsed_pct;
     const linesAbove = c.by_line.filter((l) => l.intensity_status === "above target");
     const g = t.co2_gross_t || 1, calcPct = round(c.by_source_gross.calcination_t / g * 100);
@@ -186,89 +214,65 @@ const overview = {
       labels: c.series.map((p) => p.label),
       series: [{ name: "Line 1", values: c.series.map((p) => p.L1_released_t) }, { name: "Line 2", values: c.series.map((p) => p.L2_released_t) }],
       reference_line: c.series_granularity === "day" ? { value: PERMIT_LIMIT * 24, label: "Daily equivalent of permit limit" } : null });
-    const intChart = buildChart({ title: "Released intensity vs target", kind: "line", unit: "t CO2 per t clinker",
+    const intChart = buildChart({ title: "Released intensity vs target", kind: "line", unit: "t CO2 / t clinker",
       labels: c.series.map((p) => p.label),
       series: [{ name: "Line 1", values: c.series.map((p) => p.L1_intensity) }, { name: "Line 2", values: c.series.map((p) => p.L2_intensity) }],
       reference_line: { value: INTENSITY_TARGET, label: `Target ${f3(INTENSITY_TARGET)}` } });
+    relChart.classList.add("dcard"); intChart.classList.add("dcard");
 
-    overview.liveEl = h("div", { class: "live-strip" });
-    box.replaceChildren(
-      h("div", { class: "ov-head" },
-        h("div", {}, h("h2", {}, "Regulatory overview"),
-          h("p", {}, `Permit ${PERMIT_ID}. Figures for ${c.from} to ${c.to}. The numbers a regulator reviews, ready to export.`)),
-        h("div", { class: "seg", role: "group", "aria-label": "Reporting period" }, Object.entries(PERIOD_NAMES).map(([k, v]) =>
-          h("button", { "aria-pressed": String(overview.period === k), onclick: () => { overview.period = k; overview.render(); } }, v)))),
-      h("div", { class: "exports frame" }, h("span", { class: "label" }, "Export this period"),
-        pdfReady ? exportBtn("Compliance report (PDF)", () => saveFile(`${fileStem(c)}_compliance-report.pdf`, buildPdf(c)), true)
-                 : h("span", { class: "export-status bad" }, "PDF export unavailable (library didn't load)."),
-        exportBtn("Emissions data (CSV)", () => saveFile(`${fileStem(c)}_emissions.csv`, emissionsCsv(c))),
-        exportBtn("Exceedance register (CSV)", () => saveFile(`${fileStem(c)}_exceedances.csv`, registerCsv(c))),
-        status),
+    overview.liveEl = h("div", { class: "live-strip dcard", "aria-live": "polite" });
+    $("overview").replaceChildren(
       overview.liveEl,
       h("div", { class: "kpis" },
         kpi("CO2 released to air", num(t.co2_released_t), "t", h("div", { class: "sub" }, `${num(t.co2_gross_t)} t from kilns, ${num(t.co2_captured_t, 1)} t captured`)),
-        kpi("Released intensity", f3(t.intensity_t_co2_per_t), "t CO2 / t clinker",
+        kpi("Released intensity", f3(t.intensity_t_co2_per_t), "t/t",
           h("div", { class: "sub" }, `Target ${f3(INTENSITY_TARGET)}. `, h("span", { class: t.intensity_status === "above target" ? "bad" : "good" },
             t.intensity_status === "above target" ? "Above target" : "Within target"), linesAbove.length ? ` (${linesAbove.map((l) => l.name).join(", ")} above)` : "")),
         kpi("Permit-limit exceedances", String(c.exceedances.count), "",
           h("div", { class: "sub" }, c.exceedances.count ? h("span", { class: "bad" }, `${c.exceedances.total_minutes} min above ${PERMIT_LIMIT} t/h`) : "None this period")),
         kpi("Annual cap used", `${capUsed}`, "%",
           h("div", { class: "capbar", title: `${capUsed}% used, ${capEl}% of the year elapsed` }, h("i", { style: `width:${Math.min(capUsed, 100)}%` }), h("em", { style: `left:${capEl}%` })),
-          h("div", { class: "sub" }, `${capEl}% of the year gone. `, h("span", { class: c.annual_cap.status === "on track" ? "good" : "bad" }, c.annual_cap.status === "on track" ? "On track" : "Projected over cap"),
-            `, ${num(c.annual_cap.projected_year_end_t / 1e6, 2)} of ${num(ANNUAL_CAP / 1e6, 2)} Mt projected`)),
+          h("div", { class: "sub" }, `${capEl}% of year gone. `, h("span", { class: c.annual_cap.status === "on track" ? "good" : "bad" }, c.annual_cap.status === "on track" ? "On track" : "Projected over cap"))),
         kpi("CO2 captured", num(t.co2_captured_t, 1), "t", h("div", { class: "sub" }, `${t.capture_pct_of_gross}% of kiln CO2. Vents ran ${num(c.by_line.reduce((a, l) => a + l.vent_minutes, 0) / 60, 1)} h`)),
-        kpi("Monitoring data captured", `${Math.min(...c.by_line.map((l) => l.data_availability_pct))}`, "% min",
-          h("div", { class: "sub" }, `${c.by_line.map((l) => `${l.name} ${l.data_availability_pct}%`).join(", ")}. ${c.air.fence_line_alerts} fence-line air alert${c.air.fence_line_alerts === 1 ? "" : "s"}`))),
-      h("div", { class: "ov-grid" }, relChart, intChart),
-      h("div", { class: "ov-grid" },
-        h("section", { class: "box frame" }, h("h3", {}, "CO2 by source, before capture"),
-          h("div", { class: "splitbar", role: "img", "aria-label": `Calcination ${calcPct}%, fuel combustion ${round(100 - calcPct)}%` },
-            h("span", { style: `width:${calcPct}%;background:var(--color-chart-1)` }), h("span", { style: `width:${100 - calcPct}%;background:var(--color-chart-3)` })),
-          h("div", { class: "srcrow" }, h("span", {}, h("i", { style: "background:var(--color-chart-1)" }), "Calcination (process)"), h("span", {}, `${num(c.by_source_gross.calcination_t)} t, ${calcPct}%`)),
-          h("div", { class: "srcrow" }, h("span", {}, h("i", { style: "background:var(--color-chart-3)" }), "Fuel combustion"), h("span", {}, `${num(c.by_source_gross.fuel_combustion_t)} t, ${round(100 - calcPct)}%`)),
-          h("p", { class: "note" }, "Calcination CO2 comes from turning limestone into clinker and can't be cut by burning cleaner fuel.")),
-        h("section", { class: "box frame" }, h("h3", {}, "By line"),
-          h("div", { class: "table-wrap" }, h("table", { class: "data" },
-            h("thead", {}, h("tr", {}, ["Line", "Released t", "Intensity", "Captured t", "Running h"].map((x, i) => h("th", { class: i ? "num" : "" }, x)))),
-            h("tbody", {}, c.by_line.map((l) => h("tr", {},
-              h("td", {}, l.name), h("td", { class: "num" }, num(l.co2_released_t)),
-              h("td", { class: "num" + (l.intensity_status === "above target" ? " over" : "") }, f3(l.intensity_t_co2_per_t)),
-              h("td", { class: "num" }, num(l.co2_captured_t, 1)), h("td", { class: "num" }, num(l.running_hours))))))))),
-      h("section", { class: "box frame" }, h("h3", {}, `Exceedance register (${c.exceedances.count})`),
-        c.exceedances.register.length ? h("div", { class: "table-wrap" }, h("table", { class: "data" },
-          h("thead", {}, h("tr", {}, ["Start", "Duration", "Line", "Peak", "Cause", "Action taken"].map((x, i) => h("th", { class: i === 1 || i === 3 ? "num" : "" }, x)))),
-          h("tbody", {}, c.exceedances.register.slice().reverse().map((e) => h("tr", {},
-            h("td", {}, e.start), h("td", { class: "num" }, `${e.duration_min} min`), h("td", {}, lineById(e.line).name),
-            h("td", { class: "num over" }, `${e.peak_released_t_per_h} t/h`), h("td", {}, e.cause), h("td", {}, e.action))))))
+        kpi("Monitoring data", `${Math.min(...c.by_line.map((l) => l.data_availability_pct))}`, "% min",
+          h("div", { class: "sub" }, `${c.air.fence_line_alerts} fence-line air alert${c.air.fence_line_alerts === 1 ? "" : "s"}`))),
+      relChart,
+      intChart,
+      h("section", { class: "box dcard frame" }, h("h3", {}, "CO2 by source, before capture"),
+        h("div", { class: "splitbar", role: "img", "aria-label": `Calcination ${calcPct}%, fuel combustion ${round(100 - calcPct)}%` },
+          h("span", { style: `width:${calcPct}%;background:var(--color-chart-1)` }), h("span", { style: `width:${100 - calcPct}%;background:var(--color-chart-3)` })),
+        h("div", { class: "srcrow" }, h("span", {}, h("i", { style: "background:var(--color-chart-1)" }), "Calcination (process)"), h("span", {}, `${num(c.by_source_gross.calcination_t)} t, ${calcPct}%`)),
+        h("div", { class: "srcrow" }, h("span", {}, h("i", { style: "background:var(--color-chart-3)" }), "Fuel combustion"), h("span", {}, `${num(c.by_source_gross.fuel_combustion_t)} t, ${round(100 - calcPct)}%`)),
+        h("p", { class: "note" }, "Calcination CO2 comes from turning limestone into clinker and can't be cut by burning cleaner fuel.")),
+      h("section", { class: "box dcard frame" }, h("h3", {}, "By line"),
+        h("div", { class: "table-wrap" }, h("table", { class: "data" },
+          h("thead", {}, h("tr", {}, ["Line", "Released t", "Intensity", "Captured t", "Running h"].map((x, i) => h("th", { class: i ? "num" : "" }, x)))),
+          h("tbody", {}, c.by_line.map((l) => h("tr", {},
+            h("td", {}, l.name), h("td", { class: "num" }, num(l.co2_released_t)),
+            h("td", { class: "num" + (l.intensity_status === "above target" ? " over" : "") }, f3(l.intensity_t_co2_per_t)),
+            h("td", { class: "num" }, num(l.co2_captured_t, 1)), h("td", { class: "num" }, num(l.running_hours)))))))),
+      h("section", { class: "box dcard frame" }, h("h3", {}, `Exceedance register (${c.exceedances.count})`),
+        c.exceedances.register.length ? h("div", { class: "reg" }, c.exceedances.register.slice().reverse().map((e) => h("div", { class: "reg-row" },
+          h("div", { class: "reg-top" }, h("b", {}, lineById(e.line).name), h("time", {}, e.start), h("span", {}, `${e.duration_min} min`), h("span", { class: "over" }, `${e.peak_released_t_per_h} t/h`)),
+          h("div", { class: "reg-meta" }, h("span", {}, e.cause), `. ${e.action}`))))
           : h("p", { class: "note" }, "No exceedances in this period.")),
-      h("p", { class: "method" }, `Released CO2 is kiln CO2 measured at each stack minus CO2 captured by the vents. Calcination is calculated at ${CALCINATION} t CO2 per tonne of clinker. An exceedance is released CO2 above ${PERMIT_LIMIT} t/h for more than 10 seconds. All figures are synthetic.`));
+      h("p", { class: "method dcard" }, `Released CO2 is kiln CO2 measured at each stack minus CO2 captured by the vents. Calcination is calculated at ${CALCINATION} t CO2 per tonne of clinker. An exceedance is released CO2 above ${PERMIT_LIMIT} t/h for more than 10 seconds. All figures are synthetic.`));
     overview.renderLive();
   },
 
+  // Runs every second: live state per line, and the alarm dot on the collapsed rail
   renderLive() {
+    const bad = LINES.filter((L) => live.lines[L.id].alarm);
+    $("dashDot").hidden = !bad.length;
     const el = overview.liveEl;
     if (!el) return;
-    const bad = LINES.filter((L) => live.lines[L.id].alarm);
-    el.className = "live-strip" + (bad.length ? " alarm" : "");
+    const sig = LINES.map((L) => { const st = live.lines[L.id]; return `${st.status}:${round(st.released)}:${st.alarm}`; }).join("|");
+    if (el.dataset.sig === sig) return;
+    el.dataset.sig = sig;
+    el.className = "live-strip dcard" + (bad.length ? " alarm" : "");
     el.replaceChildren(
       h("b", {}, bad.length ? "Live: permit limit exceeded" : "Live: within permit limits"),
       ...LINES.map((L) => { const st = live.lines[L.id]; return h("span", {}, `${L.name} ${st.status === "running" ? `${round(st.released)} t/h` : st.status}`); }),
-      ...(bad.length ? [h("button", { class: "btn danger", onclick: () => views.set("console") }, "Open emissions console")] : []));
+      ...(bad.length ? [h("button", { class: "btn danger", onclick: () => { if (ui.selected !== bad[0].id) ui.select(bad[0].id); } }, `Select ${bad[0].name} in 3D`)] : []));
   },
 };
-
-const views = {
-  current: "console",
-  set(v) {
-    views.current = v;
-    document.body.dataset.view = v;   // console.css dims the 3D view and hides its overlays behind the overview
-    $("overview").hidden = v !== "overview";
-    $("console").hidden = v !== "console";
-    $("viewOverview").setAttribute("aria-pressed", String(v === "overview"));
-    $("viewConsole").setAttribute("aria-pressed", String(v === "console"));
-    if (v === "overview") overview.render();
-    else overview.liveEl = null;
-  },
-};
-$("viewOverview").onclick = () => views.set("overview");
-$("viewConsole").onclick = () => views.set("console");

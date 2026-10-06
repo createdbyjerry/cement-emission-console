@@ -9,7 +9,6 @@ const ui = {
   confirming: null,       // line id awaiting shutdown confirmation
   tab: "chat",
   unseen: 0,
-  panelCollapsed: false,  // set by layout.js
 
   renderSite() {
     const r = productionReport({ period: "today" });
@@ -120,8 +119,8 @@ const ui = {
 
   onEvent(e) {
     if (ui.tab === "log") ui.renderEvents();
-    if (views.current === "overview" && (e.k === "alarm" || e.k === "sensor" || (e.k === "info" && /permit limit/.test(e.text)))) overview.render();
-    else if (["alarm", "vent", "shutdown", "restart", "sensor", "upset"].includes(e.k) && !(ui.tab === "log" && !ui.panelCollapsed)) { ui.unseen++; ui.setBadge(); }
+    if (e.k === "alarm" || e.k === "sensor" || (e.k === "info" && /permit limit/.test(e.text))) overview.render();   // the overview is always on screen
+    if (["alarm", "vent", "shutdown", "restart", "sensor", "upset"].includes(e.k) && !(ui.tab === "log" && !(typeof layout !== "undefined" && layout.collapsed))) { ui.unseen++; ui.setBadge(); }
     ui.renderLines();
   },
 
