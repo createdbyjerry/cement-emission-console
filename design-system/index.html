@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design system · Halden Ridge emissions console</title>
+<meta name="description" content="Tokens and components behind the Halden Ridge emissions console prototype.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='3' y='3' width='10' height='10' transform='rotate(45 8 8)' fill='%23f7c948'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<link rel="stylesheet" href="../assets/css/docs.css">
+</head>
+<body class="docs">
+<header class="bar">
+  <h1>Halden Ridge Cement Works</h1>
+  <span class="spacer"></span>
+  <a class="barlink" href="../">Prototype</a>
+  <a class="barlink" href="./" aria-current="page">Design system</a>
+</header>
+
+<div class="ds">
+  <nav class="ds-nav" aria-label="Design system sections">
+    <h2>Foundations</h2>
+    <a href="#principles">Principles</a>
+    <a href="#color">Color</a>
+    <a href="#type">Typography</a>
+    <a href="#shape">Shape and frames</a>
+    <a href="#scene">3D and motion</a>
+    <a href="#tokens">All tokens</a>
+    <h2>Components</h2>
+    <a href="#app-bar">App bar</a>
+    <a href="#buttons">Buttons</a>
+    <a href="#pills">Status pills</a>
+    <a href="#line-card">Production line card</a>
+    <a href="#stats">Floating stats</a>
+    <a href="#tabs">Tabs</a>
+    <a href="#messages">Copilot messages</a>
+    <a href="#recommendation">Recommendation card</a>
+    <a href="#chart">Chart</a>
+    <a href="#event-log">Event log</a>
+    <a href="#segmented">Segmented control</a>
+    <a href="#kpi">KPI card</a>
+    <a href="#live-strip">Live status strip</a>
+    <a href="#exports">Export bar</a>
+    <a href="#table">Data table</a>
+    <a href="#composer">Composer</a>
+  </nav>
+
+  <main class="ds-main">
+    <section class="ds-intro">
+      <h1>Design system</h1>
+      <p>The tokens and components behind the emissions console. Every value on this page comes from <code>tokens/tokens.json</code>, and every component below uses the same markup and classes as the prototype.</p>
+      <p id="tokenStatus">Loading tokens…</p>
+    </section>
+
+    <!-- ── Foundations ─────────────────────────────────────────────── -->
+    <section class="ds-section" id="principles">
+      <h2>Principles</h2>
+      <div class="ds-grid2">
+        <div class="box frame"><h3>One accent, one alarm</h3><p class="ds-usage">Yellow marks what's active, live or selected. Red is reserved for permit breaches and actions that stop production. Nothing else competes for attention.</p></div>
+        <div class="box frame"><h3>A drawing, not a render</h3><p class="ds-usage">The plant is drawn as flat outlines with an orthographic camera, so it reads like a schematic from any angle and the data stays the focus.</p></div>
+        <div class="box frame"><h3>Humans decide</h3><p class="ds-usage">Automation (capture vents) and the copilot act or recommend, but only an operator can shut a line down, and always through a confirmation step.</p></div>
+        <div class="box frame"><h3>Numbers you can cite</h3><p class="ds-usage">Figures use the display face with tabular numerals. Every report value traces back to a logged record, and the copilot fetches data before it answers.</p></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="color">
+      <h2>Color</h2>
+      <p>Dark only, by design. Swatches are generated from the token file; an arrow shows a token that points at another one, so changing the accent updates everything that uses it.</p>
+      <div id="colorGroups"></div>
+      <h3 class="ds-sub">Emission scale</h3>
+      <p class="ds-usage">Used for smoke and fence sensors: normal, elevated, over the limit.</p>
+      <div class="ramp-demo" role="img" aria-label="Emission scale from yellow through orange to red"></div>
+    </section>
+
+    <section class="ds-section" id="type">
+      <h2>Typography</h2>
+      <p>Chakra Petch, a squared technical face, carries headings, figures and controls. Archivo handles running text. Both use tabular numerals so live figures don't jitter.</p>
+      <div class="ds-grid2" id="families"></div>
+      <h3 class="ds-sub">Type scale</h3>
+      <table class="ds-table" id="typeScale"><thead><tr><th>Token</th><th>Size</th><th>Specimen</th></tr></thead><tbody></tbody></table>
+      <h3 class="ds-sub">Weights and tracking</h3>
+      <table class="ds-table" id="weights"><thead><tr><th>Token</th><th>Value</th><th>Specimen</th></tr></thead><tbody></tbody></table>
+    </section>
+
+    <section class="ds-section" id="shape">
+      <h2>Shape and frames</h2>
+      <p>Panels get thin borders with yellow corner brackets (<code>.frame</code>). Buttons get a cut corner (<code>--shape-chamfer</code>). Small chips over the 3D view use a left accent rule.</p>
+      <div class="ds-example">
+        <div class="shape-demo frame">.frame</div>
+        <button class="btn primary">Cut corner</button>
+        <div class="hud-demo" style="border-left: var(--shape-rule-width) solid var(--color-accent); background: var(--color-surface-overlay-subtle); padding: 0.15rem 0.5rem; font-size: var(--font-size-sm);">Accent rule chip</div>
+      </div>
+      <table class="ds-table" id="shapeTokens"><thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead><tbody></tbody></table>
+    </section>
+
+    <section class="ds-section" id="scene">
+      <h2>3D and motion</h2>
+      <p>The 3D scene reads its colours, opacities and timing from tokens at runtime, so the drawing follows the same palette as the interface.</p>
+      <table class="ds-table" id="sceneTokens"><thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead><tbody></tbody></table>
+    </section>
+
+    <section class="ds-section" id="tokens">
+      <h2>All tokens</h2>
+      <p>The full list, in the order it appears in <code>tokens.json</code>. Edit that file and run <code>npm run tokens</code> to regenerate <code>assets/css/tokens.css</code>.</p>
+      <div class="table-wrap"><table class="ds-table" id="allTokens"><thead><tr><th>CSS variable</th><th>Type</th><th>Value</th><th>Description</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- ── Components ──────────────────────────────────────────────── -->
+    <section class="ds-section" id="app-bar">
+      <h2>App bar</h2>
+      <div class="ds-example col" style="padding: 0">
+        <header class="bar">
+          <h1>Halden Ridge Cement Works</h1>
+          <nav class="views" aria-label="Views (example)">
+            <button aria-pressed="false">Overview</button>
+            <button aria-pressed="true">Emissions console<span class="dot" title="A line is above its permit limit"></span></button>
+          </nav>
+          <span class="spacer"></span>
+          <span class="clock">14:23:05</span>
+          <span class="mode" data-mode="live">Live: Claude</span>
+        </header>
+      </div>
+      <p class="ds-usage"><code>.bar</code> with a diamond-marked title, the <code>.views</code> switcher (the selected view uses <code>aria-pressed="true"</code>), a red <code>.dot</code> when the hidden view has an alarm, the <code>.clock</code> and the <code>.mode</code> chip (<code>data-mode="live"</code> turns it yellow).</p>
+    </section>
+
+    <section class="ds-section" id="buttons">
+      <h2>Buttons</h2>
+      <div class="ds-example">
+        <button class="btn primary">Restart Line 1</button>
+        <button class="btn">Shut down…</button>
+        <button class="btn danger">Shut down Line 1</button>
+        <button class="btn" disabled style="opacity: 0.45">Disabled</button>
+        <button class="sim">Simulate kiln upset</button>
+      </div>
+      <p class="ds-usage"><code>.btn.primary</code> for the main action, <code>.btn</code> for secondary, <code>.btn.danger</code> only for actions that stop production, and only after a confirmation step. <code>.sim</code> is the demo control that sits over the 3D view.</p>
+    </section>
+
+    <section class="ds-section" id="pills">
+      <h2>Status pills</h2>
+      <div class="ds-example">
+        <span class="pill running">Running</span>
+        <span class="pill stopping">Shutting down</span>
+        <span class="pill starting">Starting</span>
+        <span class="pill stopped">Stopped</span>
+        <span class="pill vent" style="margin-left: 0">CV-1 capturing 30 t/h</span>
+        <span class="pill vent idle" style="margin-left: 0">CV-2 idle</span>
+      </div>
+      <p class="ds-usage">Line status uses <code>.pill.running</code>, <code>.stopping</code>, <code>.starting</code> or <code>.stopped</code>. A capture vent uses <code>.pill.vent</code> while working (solid yellow) and <code>.pill.vent.idle</code> otherwise.</p>
+    </section>
+
+    <section class="ds-section" id="line-card">
+      <h2>Production line card</h2>
+      <div class="ds-example">
+        <div class="fill">
+          <article class="lcard frame" data-alarm="false">
+            <div class="top"><h3>Line 1</h3><span class="pill running">Running</span><span class="pill vent idle">CV-1 idle</span></div>
+            <div class="nums">
+              <div><b>118.3 t/h</b><span>Clinker output</span></div>
+              <div><b>99.4 t/h</b><span>CO2 released (limit 112)</span></div>
+              <div><b>99.4 t/h</b><span>CO2 from kiln</span></div>
+            </div>
+            <svg class="spark" viewBox="0 0 200 26" preserveAspectRatio="none" aria-hidden="true"><line class="lim" x1="0" x2="200" y1="6.6" y2="6.6"/><polyline class="val" points="0,9.4 20,9.2 40,9.6 60,9.1 80,9.5 100,9.3 120,9.6 140,9.2 160,9.4 180,9.3 200,9.4"/></svg>
+            <div class="actions"><button class="btn">Shut down…</button></div>
+          </article>
+        </div>
+        <div class="fill">
+          <article class="lcard frame" data-alarm="true">
+            <div class="top"><h3>Line 2</h3><span class="pill running">Running</span><span class="pill vent">CV-2 capturing 30 t/h</span></div>
+            <div class="nums">
+              <div><b>112.1 t/h</b><span>Clinker output</span></div>
+              <div><b class="over">121.6 t/h</b><span>CO2 released (limit 112)</span></div>
+              <div><b>151.6 t/h</b><span>CO2 from kiln</span></div>
+            </div>
+            <svg class="spark" viewBox="0 0 200 26" preserveAspectRatio="none" aria-hidden="true"><line class="lim" x1="0" x2="200" y1="6.6" y2="6.6"/><polyline class="val" points="0,9.6 20,9.4 40,9.5 60,8 80,6 100,5.2 120,4.9 140,5 160,4.8 180,5.1 200,4.9"/></svg>
+            <div class="msg alarm">Above permit limit even with the vent at full capacity. Shutting down would stop it.</div>
+            <div class="actions">
+              <span class="confirm">Stop clinker production on Line 2? About 112 t/h of output will stop.</span>
+              <button class="btn danger">Shut down Line 2</button><button class="btn">Cancel</button>
+            </div>
+          </article>
+        </div>
+      </div>
+      <p class="ds-usage"><code>.lcard.frame</code>. Set <code>data-alarm="true"</code> for a permit breach (red frame and glow), add <code>.selected</code> when the line is selected in 3D, and <code>.hover</code> when it's hovered there (white outline). The sparkline shows the last 90 seconds of released CO2 against the dashed limit. Shutting down always goes through the inline confirmation shown on the right.</p>
+    </section>
+
+    <section class="ds-section" id="stats">
+      <h2>Floating stats</h2>
+      <div class="ds-example dark">
+        <section class="stats frame" aria-label="Today so far (example)">
+          <div class="caption">Today so far<span>since 00:00</span></div>
+          <div class="grid">
+            <div><b>3,278<small>t</small></b><span>Clinker produced</span></div>
+            <div><b>2,759<small>t</small></b><span>CO2 released</span></div>
+            <div><b>25.5<small>t</small></b><span>CO2 captured by vents</span></div>
+            <div><b>5.4<small>m/s</small></b><span>Wind toward east</span></div>
+          </div>
+        </section>
+      </div>
+      <p class="ds-usage"><code>.stats.frame</code> floats over the 3D view on a blurred overlay surface. Units sit in a smaller muted <code>&lt;small&gt;</code> after each figure.</p>
+    </section>
+
+    <section class="ds-section" id="tabs">
+      <h2>Tabs</h2>
+      <div class="ds-example col" style="padding: 0">
+        <div class="tabs" role="tablist" aria-label="Tabs (example)">
+          <button role="tab" aria-selected="true">Copilot</button>
+          <button role="tab" aria-selected="false">Event log<span class="badge">3</span></button>
+        </div>
+      </div>
+      <p class="ds-usage"><code>.tabs</code> with <code>aria-selected</code> on the active tab. The red <code>.badge</code> counts unseen operational events.</p>
+    </section>
+
+    <section class="ds-section" id="messages">
+      <h2>Copilot messages</h2>
+      <div class="ds-example col">
+        <div class="suggest"><button>How did last night's production go?</button><button>Summarize our permit compliance for the last 30 days</button></div>
+        <div class="msg-user">How did last night's production go?</div>
+        <div class="msg-tool">Pulled production report: Sun, Oct 4 22:00 to Today 06:00</div>
+        <div class="msg-tool">Read event log: 7 events</div>
+        <div class="msg-agent"><span class="who">Claude</span>Last night the plant made 1,739 t of clinker and released 1,469 t of CO2. Line 2 had a permit-limit alarm at 02:33 and was shut down at 03:05.</div>
+        <div class="msg-sys">Claude is thinking…</div>
+        <div class="msg-err">Claude is rate-limited right now. Try again in a minute.</div>
+      </div>
+      <p class="ds-usage"><code>.suggest</code> buttons start a conversation. <code>.msg-user</code> for the operator, <code>.msg-agent</code> for the copilot (its <code>.who</code> says "Claude" or "Demo script" so it's always clear which is answering), <code>.msg-tool</code> each time it fetches data, <code>.msg-sys</code> for status and <code>.msg-err</code> for failures.</p>
+    </section>
+
+    <section class="ds-section" id="recommendation">
+      <h2>Recommendation card</h2>
+      <div class="ds-example col">
+        <div class="proposal frame" role="group" aria-label="Recommendation (example)">
+          <h4>Recommendation: shut down Line 2</h4>
+          <p>Line 2 is releasing 121.6 t/h, above the 112 t/h permit limit, and CV-2 is already capturing at full capacity.</p>
+          <div class="actions"><button class="btn danger">Shut down Line 2</button><button class="btn">Keep running</button></div>
+        </div>
+      </div>
+      <p class="ds-usage"><code>.proposal.frame</code>. The copilot can recommend a shutdown but never perform one: the operator chooses here, and the choice is logged either way.</p>
+    </section>
+
+    <section class="ds-section" id="chart">
+      <h2>Chart</h2>
+      <div class="ds-grid2" id="chartDemo"></div>
+      <p class="ds-usage">Built by <code>buildChart(spec)</code> in <code>assets/js/lib.js</code>: line or bar, up to four series coloured <code>--color-chart-1</code> to <code>4</code>, and an optional dashed reference line in the alarm colour for a limit or target. Line charts fit their axis to the data and leave gaps for missing values.</p>
+    </section>
+
+    <section class="ds-section" id="event-log">
+      <h2>Event log</h2>
+      <div class="ds-example col">
+        <div class="events">
+          <h5>Earlier today</h5>
+          <div class="ev" data-k="restart"><time>03:48</time><span><span class="kind">Restart</span>Line 2 restart started by night shift operator.</span></div>
+          <div class="ev" data-k="shutdown"><time>03:05</time><span><span class="kind">Shutdown</span>Line 2 shut down by night shift operator. Reason: kiln feed instability.</span></div>
+          <div class="ev" data-k="sensor"><time>02:41</time><span><span class="kind">Air</span>Fence sensor E2 reads 548 ppm, downwind of Line 2.</span></div>
+          <div class="ev" data-k="alarm"><time>02:33</time><span><span class="kind">Alarm</span>Line 2 released CO2 above permit limit (116 t/h vs 112 t/h) with CV-2 at full capacity.</span></div>
+          <div class="ev" data-k="vent"><time>02:14</time><span><span class="kind">Vent</span>CV-2 opened automatically. Line 2 CO2 at 121 t/h (trigger 105 t/h).</span></div>
+          <div class="ev" data-k="upset"><time>02:11</time><span><span class="kind">Upset</span>Line 2 kiln feed unstable. Stack CO2 climbing.</span></div>
+          <div class="ev" data-k="maintenance"><time>06:00</time><span><span class="kind">Maintenance</span>Line 2 stopped for planned refractory maintenance.</span></div>
+        </div>
+      </div>
+      <p class="ds-usage">Each <code>.ev</code> row takes a <code>data-k</code> kind that colours its label: vent (yellow), alarm (red), upset and air (orange), shutdown and restart (white), maintenance and info (muted).</p>
+    </section>
+
+    <section class="ds-section" id="segmented">
+      <h2>Segmented control</h2>
+      <div class="ds-example">
+        <div class="seg" role="group" aria-label="Reporting period (example)"><button aria-pressed="false">Last 7 days</button><button aria-pressed="true">Last 30 days</button><button aria-pressed="false">Year to date</button></div>
+      </div>
+      <p class="ds-usage"><code>.seg</code> for picking one option from a short set, such as the reporting period. The chosen option has <code>aria-pressed="true"</code>.</p>
+    </section>
+
+    <section class="ds-section" id="kpi">
+      <h2>KPI card</h2>
+      <div class="ds-example col">
+        <div class="kpis">
+          <div class="kpi frame"><div class="lbl">CO2 released to air</div><div class="val">139,996<small>t</small></div><div class="sub">140,352 t from kilns, 356.0 t captured</div></div>
+          <div class="kpi frame"><div class="lbl">Permit-limit exceedances</div><div class="val">4</div><div class="sub"><span class="bad">113 min above 112 t/h</span></div></div>
+          <div class="kpi frame"><div class="lbl">Annual cap used</div><div class="val">72<small>%</small></div><div class="capbar"><i style="width: 72%"></i><em style="left: 76%"></em></div><div class="sub">76% of the year gone. <span class="good">On track</span></div></div>
+        </div>
+      </div>
+      <p class="ds-usage"><code>.kpi.frame</code> inside a <code>.kpis</code> grid. Use <code>.good</code> or <code>.bad</code> in the sub-line to state the verdict in words, not only colour. <code>.capbar</code> shows usage (<code>&lt;i&gt;</code>) against a marker (<code>&lt;em&gt;</code>), here the share of the year elapsed.</p>
+    </section>
+
+    <section class="ds-section" id="live-strip">
+      <h2>Live status strip</h2>
+      <div class="ds-example col">
+        <div class="live-strip"><b>Live: within permit limits</b><span>Line 1 98.9 t/h</span><span>Line 2 96.8 t/h</span></div>
+        <div class="live-strip alarm"><b>Live: permit limit exceeded</b><span>Line 1 122.1 t/h</span><span>Line 2 96.8 t/h</span><button class="btn danger">Open emissions console</button></div>
+      </div>
+      <p class="ds-usage"><code>.live-strip</code> keeps live state visible on pages that are otherwise historical. Add <code>.alarm</code> during a breach, with a way to get to the controls.</p>
+    </section>
+
+    <section class="ds-section" id="exports">
+      <h2>Export bar</h2>
+      <div class="ds-example col">
+        <div class="exports frame"><span class="label">Export this period</span><button class="btn primary">Compliance report (PDF)</button><button class="btn">Emissions data (CSV)</button><button class="btn">Exceedance register (CSV)</button><span class="export-status">Saved halden-ridge_last-30-days_emissions.csv</span></div>
+      </div>
+      <p class="ds-usage"><code>.exports.frame</code>. Name each export by what it contains and its format. <code>.export-status</code> confirms the result in place; add <code>.bad</code> when it fails.</p>
+    </section>
+
+    <section class="ds-section" id="table">
+      <h2>Data table</h2>
+      <div class="ds-grid2">
+        <section class="box frame"><h3>By line</h3>
+          <div class="table-wrap"><table class="data">
+            <thead><tr><th>Line</th><th class="num">Released t</th><th class="num">Intensity</th><th class="num">Captured t</th></tr></thead>
+            <tbody><tr><td>Line 1</td><td class="num">71,428</td><td class="num">0.843</td><td class="num">182.5</td></tr>
+                   <tr><td>Line 2</td><td class="num">68,568</td><td class="num over">0.864</td><td class="num">173.5</td></tr></tbody>
+          </table></div>
+        </section>
+        <section class="box frame"><h3>CO2 by source, before capture</h3>
+          <div class="splitbar" role="img" aria-label="Calcination 62%, fuel combustion 38%"><span style="width: 62%; background: var(--color-chart-1)"></span><span style="width: 38%; background: var(--color-chart-3)"></span></div>
+          <div class="srcrow"><span><i style="background: var(--color-chart-1)"></i>Calcination (process)</span><span>86,962 t, 62%</span></div>
+          <div class="srcrow"><span><i style="background: var(--color-chart-3)"></i>Fuel combustion</span><span>53,390 t, 38%</span></div>
+        </section>
+      </div>
+      <p class="ds-usage"><code>table.data</code> inside <code>.table-wrap</code> (scrolls sideways on small screens). Right-align figures with <code>.num</code>; mark values over a limit or target with <code>.over</code>.</p>
+    </section>
+
+    <section class="ds-section" id="composer">
+      <h2>Composer</h2>
+      <div class="ds-example col" style="padding: 0">
+        <div class="composer ds-composer"><input placeholder="Ask about last night, vents, trends…" aria-label="Ask the copilot (example)"><button class="btn primary">Ask</button></div>
+      </div>
+      <p class="ds-usage"><code>.composer</code> pinned to the bottom of the copilot panel. While Claude is answering, the button becomes Stop (<code>.stop</code>).</p>
+    </section>
+  </main>
+</div>
+
+<script src="../assets/js/lib.js"></script>
+<script src="../assets/js/design-system.js"></script>
+</body>
+</html>

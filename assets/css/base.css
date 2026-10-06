@@ -1,0 +1,22 @@
+/* base.css
+   Reset, page defaults and type. Shared by every page.
+   Every value comes from tokens.css (generated from tokens/tokens.json). */
+
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  font-family: var(--font-family-body);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  background: var(--color-surface-bg);
+}
+/* Sci-fi console. Dark only, by design. One accent (yellow); red is reserved for alarms. */
+
+*, *::before, *::after { box-sizing: inherit; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { height: 100%; margin: 0; display: flex; flex-direction: column; font-size: var(--font-size-root); line-height: 1.45; background: var(--color-surface-bg); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+::selection { background: var(--color-accent); color: var(--color-text-on-accent); }

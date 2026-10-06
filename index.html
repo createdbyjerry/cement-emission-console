@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Halden Ridge emissions console</title>
+<meta name="description" content="Prototype operator console for a cement plant: live CO2 emissions in 3D, automated capture vents, an AI copilot and a regulatory overview with report exports.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='3' y='3' width='10' height='10' transform='rotate(45 8 8)' fill='%23f7c948'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/console.css">
+</head>
+<body>
+<header class="bar">
+  <h1>Halden Ridge Cement Works</h1>
+  <nav class="views" aria-label="Views">
+    <button id="viewOverview" aria-pressed="false">Overview</button>
+    <button id="viewConsole" aria-pressed="true">Emissions console<span class="dot" id="consoleDot" hidden title="A line is above its permit limit"></span></button>
+  </nav>
+  <span class="spacer"></span>
+  <a class="barlink" href="design-system/">Design system</a>
+  <span class="clock" id="clock">--:--:--</span>
+  <span class="mode" id="mode">Connecting…</span>
+</header>
+
+<main class="split">
+  <div class="left">
+    <section class="overview" id="overview" aria-label="Regulatory overview" hidden></section>
+    <div class="console" id="console">
+      <section class="viewport" id="viewport" aria-label="3D view of the plant with live emissions">
+        <div class="labels" id="labels"></div>
+        <section class="overlay stats frame" id="stats" aria-label="Today so far"></section>
+        <div class="overlay topright">
+          <div class="scanner" id="scanner" aria-live="off">Air scanner starting…</div>
+          <button class="sim" id="simUpset" title="For demos: makes a kiln run hot so you can watch the vents and alarms respond">Simulate kiln upset</button>
+        </div>
+        <div class="overlay hud" id="hud" aria-hidden="true">Hover over equipment or a fence sensor. Click a kiln line to select it.</div>
+      </section>
+      <section class="lines" id="lines" aria-label="Production lines"></section>
+    </div>
+  </div>
+
+  <aside class="panel" aria-label="Copilot and event log">
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabChat" aria-selected="true" aria-controls="paneChat">Copilot</button>
+      <button role="tab" id="tabLog" aria-selected="false" aria-controls="paneLog">Event log<span class="badge" id="badge" hidden>0</span></button>
+    </div>
+    <div class="pane" id="paneChat" role="tabpanel">
+      <div class="chat" id="chat" aria-live="polite">
+        <p class="intro">Ask about production, emissions or vent activity. Claude pulls the plant's records before answering.</p>
+        <div class="suggest" id="suggest"></div>
+      </div>
+    </div>
+    <div class="pane" id="paneLog" role="tabpanel" hidden><div id="events"></div></div>
+    <div class="composer" id="composer">
+      <input id="ask" placeholder="Ask about last night, vents, trends…" aria-label="Ask the copilot">
+      <button class="btn primary" id="send">Ask</button>
+    </div>
+  </aside>
+</main>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- App: plain scripts that share one global scope, so order matters -->
+<script src="assets/js/lib.js"></script>
+<script src="assets/js/plant.js"></script>
+<script src="assets/js/simulation.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/copilot.js"></script>
+<script src="assets/js/scene.js"></script>
+<script src="assets/js/overview.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

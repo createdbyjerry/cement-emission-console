@@ -1,0 +1,17 @@
+# Fails a push or pull request if assets/css/tokens.css or assets/data/tokens.json
+# weren't regenerated after tokens/tokens.json changed.
+name: Check design tokens
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run tokens:check

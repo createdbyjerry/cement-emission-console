@@ -1,0 +1,17 @@
+{
+  "name": "halden-ridge-emissions-console",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prototype emissions console for a cement plant, with a token-driven design system. Static site for GitHub Pages.",
+  "type": "module",
+  "scripts": {
+    "tokens": "node scripts/build-tokens.mjs",
+    "tokens:check": "node scripts/build-tokens.mjs --check",
+    "tokens:watch": "node scripts/build-tokens.mjs --watch",
+    "serve": "npx --yes http-server . -p 8080 -c-1",
+    "start": "npm run tokens && npm run serve"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
