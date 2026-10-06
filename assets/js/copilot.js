@@ -50,7 +50,7 @@ const TOOLS = [
 function instructions() {
   return `You are the copilot in the emissions console of Halden Ridge Cement Works, a cement plant with two clinker lines (Line 1 = L1, Line 2 = L2). Each line has a kiln, a stack and an automated carbon-capture vent (CV-1, CV-2). A vent opens by itself when a line's kiln CO2 exceeds ${VENT_TRIGGER} t/h and captures up to 40% (max ${CAPTURE_MAX} t/h). The permit limit for released CO2 is ${PERMIT_LIMIT} t/h per line. Fence-line sensors read CO2 in the air; ambient is about ${AMBIENT_PPM} ppm and readings above ${SENSOR_ALERT} ppm raise an air alert.
 
-Regulatory context (permit ${PERMIT_ID}): released-CO2 intensity target ${INTENSITY_TARGET} t CO2 per t clinker; annual cap ${ANNUAL_CAP.toLocaleString()} t CO2 released per calendar year; every period above the hourly limit is logged in an exceedance register. The console has an Overview dashboard with PDF and CSV report exports.
+Regulatory context (permit ${PERMIT_ID}): released-CO2 intensity target ${INTENSITY_TARGET} t CO2 per t clinker; annual cap ${ANNUAL_CAP.toLocaleString()} t CO2 released per calendar year; every period above the hourly limit is logged in an exceedance register. The console has a regulatory overview column on the left of the screen, with a reporting-period filter and PDF and CSV report exports.
 
 The current local time is ${fmtStamp(Date.now())}. "Last night" means the most recent 22:00 to 06:00 shift.
 
@@ -102,7 +102,7 @@ async function askDemo(q) {
       series: [{ name: "Line 1", values: c.series.map((p) => p.L1_intensity) }, { name: "Line 2", values: c.series.map((p) => p.L2_intensity) }],
       reference_line: { value: INTENSITY_TARGET, label: "Target" } });
     const above = c.by_line.filter((l) => l.intensity_status === "above target").map((l) => l.name);
-    chatAgent(`For ${c.from} to ${c.to}: ${c.totals.co2_released_t.toLocaleString()} t CO2 released at ${f3(c.totals.intensity_t_co2_per_t)} t per tonne of clinker (target ${f3(INTENSITY_TARGET)}), ${above.length ? `with ${above.join(" and ")} above target` : "within target on both lines"}. There ${c.exceedances.count === 1 ? "was 1 permit-limit exceedance" : `were ${c.exceedances.count} permit-limit exceedances`} totalling ${c.exceedances.total_minutes} min. Year to date the plant has used ${c.annual_cap.used_pct}% of its annual cap with ${c.annual_cap.year_elapsed_pct}% of the year gone, so it's ${c.annual_cap.status}. The Overview tab has the full register and PDF/CSV exports.`);
+    chatAgent(`For ${c.from} to ${c.to}: ${c.totals.co2_released_t.toLocaleString()} t CO2 released at ${f3(c.totals.intensity_t_co2_per_t)} t per tonne of clinker (target ${f3(INTENSITY_TARGET)}), ${above.length ? `with ${above.join(" and ")} above target` : "within target on both lines"}. There ${c.exceedances.count === 1 ? "was 1 permit-limit exceedance" : `were ${c.exceedances.count} permit-limit exceedances`} totalling ${c.exceedances.total_minutes} min. Year to date the plant has used ${c.annual_cap.used_pct}% of its annual cap with ${c.annual_cap.year_elapsed_pct}% of the year gone, so it's ${c.annual_cap.status}. The overview on the left has the full register and PDF/CSV exports.`);
   } else if (/night|overnight|shift/.test(t)) {
     const r = call("get_production_report", { period: "last_night" });
     await pause(300);

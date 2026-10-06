@@ -10,9 +10,9 @@ function everySecond() {
   ui.renderSite();
   ui.renderLines();
   $("clock").textContent = fmtTime(Date.now(), true);
-  $("consoleDot").hidden = !(views.current === "overview" && LINES.some((L) => live.lines[L.id].alarm));
-  if (views.current === "overview") overview.renderLive();
+  overview.renderLive();
 }
+overview.render();
 everySecond();
 setInterval(everySecond, 1000);
 
