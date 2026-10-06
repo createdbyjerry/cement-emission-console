@@ -253,7 +253,7 @@ const overview = {
     el.replaceChildren(
       h("b", {}, bad.length ? "Live: permit limit exceeded" : "Live: within permit limits"),
       ...LINES.map((L) => { const st = live.lines[L.id]; return h("span", {}, `${L.name} ${st.status === "running" ? `${round(st.released)} t/h` : st.status}`); }),
-      bad.length ? h("button", { class: "btn danger", onclick: () => views.set("console") }, "Open emissions console") : null);
+      ...(bad.length ? [h("button", { class: "btn danger", onclick: () => views.set("console") }, "Open emissions console")] : []));
   },
 };
 
@@ -261,6 +261,7 @@ const views = {
   current: "console",
   set(v) {
     views.current = v;
+    document.body.dataset.view = v;   // console.css dims the 3D view and hides its overlays behind the overview
     $("overview").hidden = v !== "overview";
     $("console").hidden = v !== "console";
     $("viewOverview").setAttribute("aria-pressed", String(v === "overview"));

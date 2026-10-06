@@ -9,6 +9,7 @@ const ui = {
   confirming: null,       // line id awaiting shutdown confirmation
   tab: "chat",
   unseen: 0,
+  panelCollapsed: false,  // set by layout.js
 
   renderSite() {
     const r = productionReport({ period: "today" });
@@ -120,7 +121,7 @@ const ui = {
   onEvent(e) {
     if (ui.tab === "log") ui.renderEvents();
     if (views.current === "overview" && (e.k === "alarm" || e.k === "sensor" || (e.k === "info" && /permit limit/.test(e.text)))) overview.render();
-    else if (["alarm", "vent", "shutdown", "restart", "sensor", "upset"].includes(e.k)) { ui.unseen++; $("badge").hidden = false; $("badge").textContent = ui.unseen; }
+    else if (["alarm", "vent", "shutdown", "restart", "sensor", "upset"].includes(e.k) && !(ui.tab === "log" && !ui.panelCollapsed)) { ui.unseen++; ui.setBadge(); }
     ui.renderLines();
   },
 
@@ -131,7 +132,12 @@ const ui = {
     $("paneChat").hidden = t !== "chat";
     $("paneLog").hidden = t !== "log";
     $("composer").hidden = t !== "chat";
-    if (t === "log") { ui.unseen = 0; $("badge").hidden = true; ui.renderEvents(); }
+    if (t === "log") { ui.unseen = 0; ui.setBadge(); ui.renderEvents(); }
+  },
+
+  // Unseen-event count, on the Event log tab and on the collapsed panel rail
+  setBadge() {
+    for (const id of ["badge", "railBadge"]) { $(id).hidden = !ui.unseen; $(id).textContent = ui.unseen; }
   },
 };
 $("tabChat").onclick = () => ui.setTab("chat");

@@ -5,11 +5,13 @@
   color-scheme: dark;
 
   /* color.surface */
-  --color-surface-bg: #0a0e11; /* Page background and the 3D viewport. */
-  --color-surface-base: #0e1418; /* Panels: header, copilot, line-card strip. */
+  --color-surface-bg: #0a0e11; /* Page background and the full-screen 3D viewport. */
+  --color-surface-base: #0e1418; /* Panels that sit on the page: design system examples, line-card strip on small screens. */
   --color-surface-raised: #131a1f; /* Cards and boxes that sit on a panel. */
   --color-surface-overlay: rgba(14, 20, 24, 0.86); /* Floating panels over the 3D view. */
   --color-surface-overlay-subtle: rgba(10, 14, 17, 0.72); /* Small chips over the 3D view: HUD, scanner status, labels. */
+  --color-surface-float: rgba(14, 20, 24, 0.9); /* Floating containers over the 3D view: app bar, side panel, line-card dock, overview sheet. */
+  --color-surface-scrim: rgba(6, 9, 11, 0.55); /* Dims the 3D view behind the overview sheet. */
 
   /* color.text */
   --color-text: #ece8db; /* Primary text. */
@@ -94,16 +96,25 @@
   --shape-frame-corner: 10px; /* Size of the yellow corner brackets on framed panels. */
   --shape-frame-stroke: 2px; /* Stroke of the corner brackets. */
   --shape-chamfer: 7px; /* Cut corner on buttons. */
+  --shape-float-radius: 2px; /* Corner radius of floating containers. Kept near-square so the corner brackets still read. */
 
   /* layout */
-  --layout-viewport-share: 70; /* Share of the width for the 3D view or overview, in fr units. */
-  --layout-panel-share: 30; /* Share of the width for the copilot panel, in fr units. */
-  --layout-breakpoint: 860px; /* Below this width the layout stacks. CSS media queries can't read variables, so console.css repeats this value. */
+  --layout-float-gap: 12px; /* Gap between floating containers and the screen edge, and between each other. */
+  --layout-bar-height: 52px; /* Height of the floating app bar. */
+  --layout-panel-width: clamp(340px, 28vw, 440px); /* Width of the expanded side panel (copilot and event log). */
+  --layout-panel-rail: 52px; /* Width of the side panel when collapsed to a rail. */
+  --layout-breakpoint: 860px; /* Below this width the layout stacks and containers stop floating. CSS media queries can't read variables, so console.css repeats this value. */
 
   /* effect */
-  --effect-blur-overlay: 4px; /* Backdrop blur behind floating panels. */
+  --effect-blur-overlay: 4px; /* Backdrop blur behind small overlays (floating stats). */
+  --effect-blur-float: 14px; /* Backdrop blur behind floating containers. */
   --effect-scanline-opacity: 0.022; /* Strength of the scanline texture over the 3D view. */
   --effect-vignette-opacity: 0.45; /* Darkening at the edges of the 3D view. */
+
+  /* elevation */
+  --elevation-float: 0px 18px 44px -12px rgba(0, 0, 0, 0.75), 0px 2px 8px 0px rgba(0, 0, 0, 0.45); /* Drop shadow for floating containers: app bar, side panel, line-card dock, overview sheet. */
+  --elevation-raised: 0px 6px 18px -6px rgba(0, 0, 0, 0.6); /* Smaller shadow for chips and stats that float over the 3D view. */
+  --elevation-rim: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.04); /* Faint top highlight inside floating containers, so their edge reads against dark scenery. */
 
   /* scene */
   --scene-grid-opacity: 0.07; /* Ground grid lines. */
@@ -115,4 +126,6 @@
 
   /* motion */
   --motion-scanner-period: 10s; /* One full turn of the air scanner, and the interval of a full air pass. */
+  --motion-panel: 240ms; /* Side panel collapse and expand, and the 3D view re-centring with it. */
+  --motion-ease: cubic-bezier(0.2, 0.7, 0.2, 1); /* Easing for panel and container transitions. */
 }

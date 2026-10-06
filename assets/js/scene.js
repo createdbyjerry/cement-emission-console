@@ -202,13 +202,28 @@ const scene = (() => {
     });
   });
 
+  /* The canvas fills the screen, but floating containers (app bar, side panel, line-card dock)
+     cover its edges. layout.js reports those insets; the camera frames the plant inside the
+     uncovered area and eases to the new framing when the panel collapses or expands. */
+  const inset = { left: 0, top: 0, right: 0, bottom: 0 };   // target, px
+  const frame = { left: 0, top: 0, right: 0, bottom: 0 };   // current, eased toward target
+  function project() {
+    const w = container.clientWidth, hh = container.clientHeight;
+    if (!w || !hh) return;
+    const visW = Math.max(w - frame.left - frame.right, w * 0.3), visH = Math.max(hh - frame.top - frame.bottom, hh * 0.3);
+    const unit = VIEW / visH;                                  // world units per pixel: VIEW spans the visible height
+    const cx = frame.left + visW / 2 - w / 2, cy = frame.top + visH / 2 - hh / 2; // visible centre, px from canvas centre
+    Object.assign(camera, {
+      left: (-w / 2 - cx) * unit, right: (w / 2 - cx) * unit,
+      top: (hh / 2 + cy) * unit, bottom: (-hh / 2 + cy) * unit,
+    });
+    camera.updateProjectionMatrix();
+  }
   function resize() {
     const w = container.clientWidth, hh = container.clientHeight;
     if (!w || !hh) return;
     renderer.setSize(w, hh);
-    const a = w / hh;
-    Object.assign(camera, { left: -VIEW * a / 2, right: VIEW * a / 2, top: VIEW / 2, bottom: -VIEW / 2 });
-    camera.updateProjectionMatrix();
+    project();
   }
   new ResizeObserver(resize).observe(container); resize();
 
@@ -218,6 +233,13 @@ const scene = (() => {
   const v3 = new THREE.Vector3();
   renderer.setAnimationLoop(() => {
     const dt = Math.min(clock.getDelta(), 0.1);
+    let moved = false;
+    for (const k in inset) {
+      const d = inset[k] - frame[k];
+      if (Math.abs(d) < 0.5) { if (d) { frame[k] = inset[k]; moved = true; } continue; }
+      frame[k] += reduce ? d : d * (1 - Math.exp(-dt * 12)); moved = true;
+    }
+    if (moved) project();
     controls.update();
     updatePlumes(dt);
     if (!reduce) beamPivot.rotation.y -= dt * (Math.PI * 2 / SCAN_PERIOD);
@@ -240,6 +262,8 @@ const scene = (() => {
 
   return {
     updateSensors,
+    /** Pixels covered by floating containers on each edge of the canvas. */
+    setInsets(next) { Object.assign(inset, next); },
     hover(lineId) {
       for (const id of ["L1", "L2"]) for (const m of groupsByLine[id]) for (const edge of m.children) {
         if (!edge.isLineSegments) continue;

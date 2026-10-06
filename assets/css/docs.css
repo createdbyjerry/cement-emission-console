@@ -58,6 +58,22 @@ body.docs { height: auto; min-height: 100%; display: block; }
 .ds-note.bad { border-color: var(--color-status-alarm); background: var(--color-status-alarm-subtle); }
 .ds-composer { width: 100%; border: var(--shape-border-width) solid var(--color-border); }
 
+/* ── Elevation and floating demos ── */
+.ds-floatstage { position: relative; overflow: hidden; padding: 2rem 1.75rem; }
+.ds-floatgrid { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(var(--color-accent-subtle) 1px, transparent 1px) 0 0 / 28px 28px, linear-gradient(90deg, var(--color-accent-subtle) 1px, transparent 1px) 0 0 / 28px 28px; }
+.ds-floatstage > :not(.ds-floatgrid) { position: relative; }
+.ds-floatstage .bar.float { position: relative; }
+.ds-panels { gap: 1.5rem; align-items: stretch; }
+.ds-panels .panel { flex: none; }
+.ds-elevation { gap: 1.5rem; padding: 2rem 1.75rem; }
+.elev-demo { width: 13rem; padding: 0.9rem 1rem; display: grid; gap: 0.3rem; background: var(--color-surface-raised); }
+.elev-demo code { color: var(--color-text); }
+.elev-demo span { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.elev-demo.float { background: var(--color-surface-float); }
+.elev-demo.raised { box-shadow: var(--elevation-raised); }
+.docs kbd { font-family: var(--font-family-code); font-size: var(--font-size-xs); padding: 0 0.3rem; border: var(--shape-border-width) solid var(--color-border-strong); color: var(--color-text); }
+
 @media (max-width: 860px) {
   .ds { grid-template-columns: 1fr; gap: 1.5rem; }
   .ds-nav { position: static; max-height: none; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); }

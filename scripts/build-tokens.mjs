@@ -13,6 +13,9 @@
  * Naming: the token path joined with "-" and prefixed with "--". A segment
  * named "default" is dropped, so color.text.default becomes --color-text.
  *
+ * Shadows (DTCG composite, one layer or a list) become box-shadow values and
+ * cubicBezier arrays become cubic-bezier().
+ *
  * Aliases such as "{color.accent.default}" are written as var(--color-accent),
  * so changing the accent flows through every token that points at it.
  *
@@ -44,6 +47,14 @@ function formatValue(type, value) {
   if (type === "fontFamily") {
     return (Array.isArray(value) ? value : [value]).map((f) => (/\s/.test(f) ? `"${f}"` : f)).join(", ");
   }
+  // DTCG shadow: one object or a list of layers → CSS box-shadow
+  if (type === "shadow" && typeof value === "object") {
+    return (Array.isArray(value) ? value : [value])
+      .map((s) => [s.inset ? "inset" : "", s.offsetX ?? "0px", s.offsetY ?? "0px", s.blur ?? "0px", s.spread ?? "0px", s.color].filter(Boolean).join(" "))
+      .join(", ");
+  }
+  // DTCG cubicBezier: [x1, y1, x2, y2] → cubic-bezier()
+  if (type === "cubicBezier" && Array.isArray(value)) return `cubic-bezier(${value.join(", ")})`;
   return String(value);
 }
 

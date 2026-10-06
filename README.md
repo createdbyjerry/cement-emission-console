@@ -14,14 +14,16 @@ The repo also contains the design system behind it. Every color, font, size and 
 
 ## What's inside
 
-**The prototype** (the root `index.html`) has two views and a copilot panel that stays on the right in both.
+**The prototype** (the root `index.html`) has two views and a copilot panel that stays on the right in both. The 3D plant fills the whole screen; the app bar, side panel, line-card dock and overview float above it in shadowed containers, and the camera keeps the plant centred in the space they leave open.
+
+- **Side panel.** Collapse it to a slim rail with the chevron in its header (or press `\`) to give the 3D view more room. The rail keeps an icon for each tab and a badge counting unseen events. Your choice is remembered between visits.
 
 - **Emissions console.** A 3D drawing of the plant with two clinker lines. Smoke shifts from yellow to red as emissions rise, fence-line sensors change color, and an air scanner sweeps the site. Each line has an automated capture vent that opens when CO2 rises past its trigger and logs when it opened, how long it ran and what it captured. Only the operator can shut a line down, and always through a confirmation step.
 - **Overview.** A regulatory dashboard for the last 7 days, the last 30 days or the year to date. It shows CO2 released, emissions per tonne against the permit target, the permit-limit exceedance register, CO2 by source, annual cap use, and monitoring coverage. You can export a PDF compliance report, the emissions data as CSV, and the exceedance register as CSV.
 - **Copilot.** Ask about last night's production, vent activity, trends or compliance. It pulls records before answering, can draw charts, and can recommend a shutdown, but it can't perform one.
 - **Event log.** Every vent, alarm, upset, air alert, shutdown and restart, with timestamps.
 
-**The design system** (`/design-system/`) documents the principles, color, typography, shape, 3D settings and every component, using the same markup and classes as the prototype. Its token sections are generated from the token file, so they're always current.
+**The design system** (`/design-system/`) documents the principles, color, typography, shape, elevation and layout, 3D settings and every component (including the floating container and the collapsible side panel), using the same markup and classes as the prototype. Its token sections are generated from the token file, so they're always current.
 
 ## A two-minute tour
 
@@ -54,7 +56,7 @@ The generated token files are committed, so Pages doesn't need to run anything. 
 
 ## Design tokens
 
-All design decisions live in **`tokens/tokens.json`**, written in the [W3C Design Tokens format](https://tr.designtokens.org/format/) (`$value`, `$type`, `$description`). There are 76 tokens:
+All design decisions live in **`tokens/tokens.json`**, written in the [W3C Design Tokens format](https://tr.designtokens.org/format/) (`$value`, `$type`, `$description`). There are 87 tokens:
 
 | Group | What it covers |
 |---|---|
@@ -63,8 +65,10 @@ All design decisions live in **`tokens/tokens.json`**, written in the [W3C Desig
 | `color.chart`, `color.emission` | Chart series and the yellow-to-red emission scale |
 | `color.scene`, `color.print` | 3D drawing colors and the PDF report palette |
 | `font.family`, `font.weight`, `font.size`, `font.tracking` | Type |
-| `shape`, `effect`, `layout` | Frame brackets, cut corners, blur, scanlines, panel split |
-| `scene`, `motion` | 3D opacities, camera framing and scanner timing |
+| `shape`, `effect` | Frame brackets, cut corners, floating-container radius, blur, scanlines |
+| `elevation` | Drop shadows for floating containers and chips (DTCG `shadow` composites) |
+| `layout` | Floating gap, app bar height, side panel width and collapsed rail, breakpoint |
+| `scene`, `motion` | 3D opacities, camera framing, scanner timing, panel animation and easing |
 
 ### Editing tokens
 
@@ -79,6 +83,8 @@ npm run tokens:check    # 3. confirm everything is in sync (CI runs this too)
 
 - **`assets/css/tokens.css`**: every token as a CSS custom property on `:root`. Every page loads this first.
 - **`assets/data/tokens.json`**: a flat, resolved list that the design system page uses to draw swatches and tables.
+
+Composite values are converted for CSS: a `shadow` token (one layer or a list) becomes a `box-shadow` value, and a `cubicBezier` array becomes `cubic-bezier()`.
 
 Don't edit either output by hand; they're overwritten on every build. The GitHub Action in `.github/workflows/tokens.yml` fails a push if the outputs are out of date.
 
@@ -125,7 +131,7 @@ Add it to `tokens/tokens.json` with a `$value`, a `$type` (or inherit one from i
 │   │   ├── tokens.css          Generated. CSS custom properties
 │   │   ├── base.css            Reset, page defaults, type
 │   │   ├── components.css      Component library, shared by the prototype and design system
-│   │   ├── console.css         Prototype layout only
+│   │   ├── console.css         Prototype layout only: full-screen 3D view and floating containers
 │   │   └── docs.css            Design system page layout
 │   ├── js/
 │   │   ├── lib.js              Shared helpers: formatting, DOM, charts, token access
@@ -136,6 +142,7 @@ Add it to `tokens/tokens.json` with a `$value`, a `$type` (or inherit one from i
 │   │   ├── copilot.js          Copilot tools, live and demo modes
 │   │   ├── scene.js            3D plant (Three.js)
 │   │   ├── overview.js         Regulatory dashboard and PDF/CSV exports
+│   │   ├── layout.js           Floating layout: side panel collapse, 3D framing around containers
 │   │   ├── main.js             Boot
 │   │   └── design-system.js    Renders the design system's token sections
 │   └── data/tokens.json        Generated. Token list for the design system page
@@ -145,7 +152,7 @@ Add it to `tokens/tokens.json` with a `$value`, a `$type` (or inherit one from i
 
 ### How the scripts fit together
 
-The prototype uses plain `<script>` tags with no bundler or framework. The files share one global scope and load in the order listed in `index.html`: `lib` → `plant` → `simulation` → `reports` → `ui` → `copilot` → `scene` → `overview` → `main`. Keep that order if you add files.
+The prototype uses plain `<script>` tags with no bundler or framework. The files share one global scope and load in the order listed in `index.html`: `lib` → `plant` → `simulation` → `reports` → `ui` → `copilot` → `scene` → `overview` → `layout` → `main`. Keep that order if you add files.
 
 The data flows in one direction:
 
